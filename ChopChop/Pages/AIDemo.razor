@@ -1,0 +1,89 @@
+@page "/ai"
+@using System.Net.Http.Json
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
+
+<h3>AI Demo (Dev)</h3>
+<p>This page calls an Ollama-compatible endpoint (e.g., http://localhost:11434). For production, use a secure proxy or provider.</p>
+
+<EditForm Model="this" OnValidSubmit="CallAiAsync">
+    <DataAnnotationsValidator />
+    <div class="form-group">
+        <label>Endpoint Base URL</label>
+        <InputText @bind-Value="Endpoint" class="form-control" placeholder="http://localhost:11434" />
+    </div>
+    <div class="form-group">
+        <label>Model</label>
+        <InputText @bind-Value="Model" class="form-control" placeholder="llama3.2:1b" />
+    </div>
+    <div class="form-group">
+        <label>Prompt</label>
+        <InputTextArea @bind-Value="Prompt" class="form-control" rows="5" placeholder="Ask something..." />
+    </div>
+    <button class="btn btn-primary" disabled="@IsBusy" type="submit">@("Run" + (IsBusy ? "..." : string.Empty))</button>
+</EditForm>
+
+@if (!string.IsNullOrWhiteSpace(Output))
+{
+    <div class="mt-3">
+        <label>Output</label>
+        <pre style="white-space: pre-wrap">@Output</pre>
+    </div>
+}
+
+@code {
+    [System.ComponentModel.DataAnnotations.Required]
+    public string Endpoint { get; set; } = "http://localhost:11434";
+    [System.ComponentModel.DataAnnotations.Required]
+    public string Model { get; set; } = "llama3.2:1b";
+    [System.ComponentModel.DataAnnotations.Required]
+    public string Prompt { get; set; } = string.Empty;
+
+    private bool IsBusy { get; set; }
+    private string? Output { get; set; }
+
+    [Inject] private HttpClient Http { get; set; } = default!;
+
+    private sealed class OllamaGenerateRequest
+    {
+        public string model { get; set; } = string.Empty;
+        public string prompt { get; set; } = string.Empty;
+        public bool stream { get; set; } = false;
+    }
+
+    private sealed class OllamaGenerateResponse
+    {
+        public string? response { get; set; }
+    }
+
+    private async Task CallAiAsync()
+    {
+        Output = null;
+        IsBusy = true;
+        try
+        {
+            var url = Combine(Endpoint, "/api/generate");
+            var req = new OllamaGenerateRequest { model = Model, prompt = Prompt, stream = false };
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+            var res = await Http.PostAsJsonAsync(url, req, cts.Token);
+            res.EnsureSuccessStatusCode();
+            var body = await res.Content.ReadFromJsonAsync<OllamaGenerateResponse>(cancellationToken: cts.Token);
+            Output = body?.response ?? "(no response)";
+        }
+        catch (Exception ex)
+        {
+            Output = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private static string Combine(string baseUrl, string path)
+    {
+        if (string.IsNullOrWhiteSpace(baseUrl)) return path;
+        if (baseUrl.EndsWith('/')) baseUrl = baseUrl.TrimEnd('/');
+        return baseUrl + path;
+    }
+}

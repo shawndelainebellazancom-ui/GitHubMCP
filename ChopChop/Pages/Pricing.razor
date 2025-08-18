@@ -1,0 +1,74 @@
+@page "/pricing"
+@using Telerik.Blazor
+@inject NavigationManager Nav
+
+<PageTitle>Pricing — ChopChop Landscaping</PageTitle>
+<HeadContent>
+  <link rel="canonical" href="@Nav.Uri" />
+  <meta name="description" content="Clear, no-surprise pricing for lawn care and landscaping plans. Choose Basic, Standard, or Premium." />
+  <meta property="og:title" content="ChopChop Pricing" />
+  <meta property="og:description" content="Transparent lawn care pricing. Book in minutes." />
+  <meta property="og:type" content="website" />
+</HeadContent>
+
+<section class="cc-section">
+  <h1>Clear pricing. No surprises.</h1>
+  <div class="cc-grid-3 cc-pricing">
+    <TelerikCard Class="cc-card">
+      <CardHeader><h3>Basic</h3></CardHeader>
+      <CardBody>
+        <div class="cc-price"><span class="cc-amount">$59</span><span class="cc-term">/visit</span></div>
+        <ul class="cc-features">
+          <li>Occasional tidy-ups</li>
+          <li>Edge & blow-off</li>
+        </ul>
+      </CardBody>
+      <CardActions>
+        <TelerikButton ThemeColor="Primary" OnClick="@(() => Go("Basic"))">Choose Plan</TelerikButton>
+      </CardActions>
+    </TelerikCard>
+
+    <section role="group" aria-labelledby="standard-heading">
+    <TelerikCard Class="cc-card cc-popular">
+      <CardHeader>
+        <div class="cc-badge-row">
+          <h3 id="standard-heading">Standard</h3>
+          <TelerikBadge ThemeColor="Primary">Most Popular</TelerikBadge>
+        </div>
+      </CardHeader>
+      <CardBody>
+        <div class="cc-price"><span class="cc-amount">$99</span><span class="cc-term">/mo</span></div>
+        <ul class="cc-features">
+          <li>Weekly care that always looks good</li>
+          <li>Edges every visit</li>
+          <li>Priority scheduling</li>
+        </ul>
+      </CardBody>
+      <CardActions>
+        <TelerikButton ThemeColor="Primary" OnClick="@(() => Go("Standard"))">Choose Plan</TelerikButton>
+      </CardActions>
+  </TelerikCard>
+  </section>
+
+    <TelerikCard Class="cc-card">
+      <CardHeader><h3>Premium</h3></CardHeader>
+      <CardBody>
+        <div class="cc-price"><span class="cc-amount">$179</span><span class="cc-term">/mo</span></div>
+        <ul class="cc-features">
+          <li>Full-season manicured care</li>
+          <li>Proactive bed refresh</li>
+          <li>Dedicated crew</li>
+        </ul>
+      </CardBody>
+      <CardActions>
+        <TelerikButton ThemeColor="Primary" OnClick="@(() => Go("Premium"))">Choose Plan</TelerikButton>
+      </CardActions>
+    </TelerikCard>
+  </div>
+
+  <p class="cc-disclaimer">Prices vary by yard size and complexity. Final quote confirmed after site check.</p>
+</section>
+
+@code {
+  void Go(string plan) => Nav.NavigateTo($"/booking?plan={Uri.EscapeDataString(plan)}");
+}

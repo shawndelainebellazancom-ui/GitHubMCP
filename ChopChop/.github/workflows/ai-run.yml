@@ -1,0 +1,80 @@
+name: AI Prompt Run (Ollama/Hugging Face)
+
+on:
+  workflow_dispatch:
+    inputs:
+      provider:
+        description: 'Provider to use (ollama|huggingface)'
+        required: true
+        default: 'ollama'
+      model:
+        description: 'Model ID (e.g., llama3.2:1b or mistralai/Mistral-7B-Instruct)'
+        required: true
+        default: 'llama3.2:1b'
+      prompt:
+        description: 'Prompt text'
+        required: true
+        default: 'Say hello from ChopChop.'
+      ollama_endpoint:
+        description: 'Ollama base URL'
+        required: false
+        default: 'http://localhost:11434'
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    env:
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install jq
+        run: sudo apt-get update -y && sudo apt-get install -y jq
+
+      - name: Run prompt via Ollama
+        if: ${{ github.event.inputs.provider == 'ollama' }}
+        env:
+          MODEL: ${{ github.event.inputs.model }}
+          PROMPT: ${{ github.event.inputs.prompt }}
+          OLLAMA_ENDPOINT: ${{ github.event.inputs.ollama_endpoint }}
+        run: |
+          set -euo pipefail
+          echo "Using Ollama endpoint: $OLLAMA_ENDPOINT"
+          curl -sS -X POST "$OLLAMA_ENDPOINT/api/generate" \
+            -H 'Content-Type: application/json' \
+            -d "{\"model\":\"$MODEL\",\"prompt\":\"$PROMPT\",\"stream\":false}" \
+            | tee response.json
+          echo "\n--- Output ---"
+          cat response.json | jq -r '.response // .message?.content // .output_text // "(no response)"'
+
+      - name: Run prompt via Hugging Face Inference API
+        if: ${{ github.event.inputs.provider == 'huggingface' }}
+        env:
+          MODEL: ${{ github.event.inputs.model }}
+          PROMPT: ${{ github.event.inputs.prompt }}
+          HF_TOKEN: ${{ env.HF_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "$HF_TOKEN" ]; then
+            echo "HF_TOKEN secret is required for Hugging Face provider" >&2
+            exit 1
+          fi
+          echo "Calling HF Inference API: $MODEL"
+          curl -sS -X POST \
+            -H "Authorization: Bearer $HF_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "{\"inputs\":\"$PROMPT\"}" \
+            https://api-inference.huggingface.co/models/$MODEL \
+            | tee response.json
+          echo "\n--- Output ---"
+          # Try common formats: text-generation, chat, etc.
+          cat response.json | jq -r '.[0].generated_text // .generated_text // .candidates[0].content // .error // "(no response)"'
+
+      - name: Upload response artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-response
+          path: response.json

@@ -1,0 +1,80 @@
+name: Deploy to GitHub Pages
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'ChopChop/**'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      TELERIK_LICENSE: ${{ secrets.TELERIK_LICENSE }}
+      TELERIK_NUGET_SOURCE: ${{ secrets.TELERIK_NUGET_SOURCE }}
+      TELERIK_NUGET_USERNAME: ${{ secrets.TELERIK_NUGET_USERNAME }}
+      TELERIK_NUGET_TOKEN: ${{ secrets.TELERIK_NUGET_TOKEN }}
+      PAGES_BASE_PATH: ${{ vars.PAGES_BASE_PATH }} # e.g. /owner-repo/
+      PAGES_CUSTOM_DOMAIN: ${{ vars.PAGES_CUSTOM_DOMAIN }} # e.g. app.example.com
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Configure Telerik NuGet (if credentials provided)
+        if: env.TELERIK_NUGET_USERNAME != '' && env.TELERIK_NUGET_TOKEN != ''
+        run: |
+          NUGET_SRC="${TELERIK_NUGET_SOURCE:-https://nuget.telerik.com/v3/index.json}"
+          dotnet nuget add source "$NUGET_SRC" \
+            --name telerik.com \
+            --username "${{ env.TELERIK_NUGET_USERNAME }}" \
+            --password "${{ env.TELERIK_NUGET_TOKEN }}" \
+            --store-password-in-clear-text
+
+      - name: Build & Publish
+        working-directory: ChopChop
+        env:
+          USE_TELERIK: 'true'
+        run: |
+          dotnet publish ChopChop.csproj -c Release -o publish --nologo
+          OUT_DIR="publish/wwwroot"
+          # Optional base href rewrite for project pages (only if PAGES_BASE_PATH is set)
+          if [ -n "${PAGES_BASE_PATH}" ]; then
+            sed -i "s#<base href=\"/\" />#<base href=\"${PAGES_BASE_PATH}\" />#" "$OUT_DIR/index.html"
+          fi
+          # SPA fallback: copy index.html to 404.html
+          cp "$OUT_DIR/index.html" "$OUT_DIR/404.html"
+          # Optional custom domain CNAME
+          if [ -n "${PAGES_CUSTOM_DOMAIN}" ]; then
+            echo "$PAGES_CUSTOM_DOMAIN" > "$OUT_DIR/CNAME"
+          fi
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ChopChop/publish/wwwroot
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

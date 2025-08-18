@@ -1,0 +1,70 @@
+@page "/services"
+@using Telerik.Blazor
+@inject NavigationManager Navigation
+
+<PageTitle>Services — ChopChop Landscaping</PageTitle>
+<HeadContent>
+  <link rel="canonical" href="@Navigation.Uri" />
+  <meta name="description" content="Lawn care, seasonal cleanups, hedge & shrub trimming, mulch & bed refresh. Get a quote in minutes." />
+  <meta property="og:title" content="ChopChop Services" />
+  <meta property="og:description" content="Reliable landscaping and lawn services." />
+  <meta property="og:type" content="website" />
+  <script type="application/ld+json">{"@@context":"https://schema.org","@@type":"Service","provider":{"@@type":"LocalBusiness","name":"ChopChop Landscaping"},"serviceType":"Landscaping Services"}</script>
+</HeadContent>
+
+<section class="cc-section">
+  <h1>Services designed around your yard</h1>
+  <div class="cc-grid-3">
+    @if (isLoading)
+    {
+      <div class="cc-skel"></div>
+      <div class="cc-skel"></div>
+      <div class="cc-skel"></div>
+    }
+    else
+    {
+      @foreach (var svc in ServiceList)
+      {
+        <TelerikCard Class="cc-card">
+          <CardHeader><h3>@svc.Name</h3></CardHeader>
+          <CardBody>
+            <p>@svc.Description</p>
+            @if (svc.Features?.Length > 0)
+            {
+              <ul class="cc-features">
+                @foreach (var f in svc.Features!)
+                {
+                  <li>@f</li>
+                }
+              </ul>
+            }
+          </CardBody>
+          <CardActions>
+            <TelerikButton ThemeColor="Primary" OnClick="@(() => Book(svc.Id))">Get a Quote</TelerikButton>
+          </CardActions>
+        </TelerikCard>
+      }
+    }
+  </div>
+  <p class="cc-helper">Not sure? Pick what’s closest—we’ll fine‑tune on the call.</p>
+</section>
+
+@code {
+  class Svc { public string Id { get; set; } = ""; public string Name { get; set; } = ""; public string Description { get; set; } = ""; public string[]? Features { get; set; } = System.Array.Empty<string>(); }
+  List<Svc> ServiceList = new(){
+    new(){ Id="lawn", Name="Lawn Care", Description="A tidy, even cut—edges included. Weekly or bi‑weekly." },
+    new(){ Id="cleanups", Name="Seasonal Cleanups", Description="Leaves gone, beds refreshed—spring or fall." },
+    new(){ Id="hedge", Name="Hedge & Shrub Trimming", Description="Crisp lines, healthy growth." },
+    new(){ Id="mulch", Name="Mulch & Bed Refresh", Description="Color that lasts, neat borders." }
+  };
+  bool isLoading = true;
+
+  protected override async Task OnInitializedAsync()
+  {
+      // Simulate a brief load to show skeletons; replace with real data fetch later
+      await Task.Delay(350);
+      isLoading = false;
+  }
+
+  void Book(string id) => Navigation.NavigateTo($"/booking?service={id}");
+}

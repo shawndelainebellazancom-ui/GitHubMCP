@@ -1,0 +1,111 @@
+@using Microsoft.AspNetCore.Components.Routing
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
+@inherits LayoutComponentBase
+@implements IDisposable
+
+<TelerikRootComponent>
+  <a href="#main" class="sr-only" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden">Skip to content</a>
+
+  <header class="cc-header" role="banner">
+    <nav class="cc-nav" aria-label="Primary">
+      <a href="/" class="cc-brand" aria-label="ChopChop Landscaping Services">ChopChop</a>
+
+      <div class="cc-links" role="menubar">
+        <NavLink href="/" Match="NavLinkMatch.All" class="cc-link" ActiveClass="active" role="menuitem"><TelerikSvgIcon Icon="@SvgIcon.Home" /> Home</NavLink>
+        <NavLink href="/services" class="cc-link" ActiveClass="active" role="menuitem"><TelerikSvgIcon Icon="@SvgIcon.Gear" /> Services</NavLink>
+  <NavLink href="/pricing" class="cc-link" ActiveClass="active" role="menuitem"><TelerikSvgIcon Icon="@SvgIcon.Dollar" /> Pricing</NavLink>
+        <NavLink href="/booking" class="cc-link" ActiveClass="active" role="menuitem"><TelerikSvgIcon Icon="@SvgIcon.Calendar" /> Booking</NavLink>
+  <NavLink href="/contact" class="cc-link" ActiveClass="active" role="menuitem"><TelerikSvgIcon Icon="@SvgIcon.Envelope" /> Contact</NavLink>
+      </div>
+
+      <div class="cc-actions">
+        <TelerikButton Class="cc-ghost" OnClick="@(() => NavigationManager.NavigateTo("/pricing"))">See Pricing</TelerikButton>
+        <TelerikButton ThemeColor="Primary" OnClick="@(() => NavigationManager.NavigateTo("/booking"))">Book Now</TelerikButton>
+        <button id="cc-install" class="cc-install" type="button" aria-label="Install app" @onclick="InstallPwa">Install</button>
+        <button class="cc-install" type="button" aria-label="Toggle dark mode" @onclick="ToggleTheme">Theme</button>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main" class="cc-main" role="main">
+    <ErrorBoundary>
+      <ChildContent>
+        @Body
+      </ChildContent>
+      <ErrorContent Context="ex">
+        <div class="cc-card" style="padding:20px" role="alert" aria-live="assertive">
+          <div style="display:flex;align-items:center;gap:8px">
+            <TelerikSvgIcon Icon="@SvgIcon.ExclamationCircle" />
+            <h2>Something went wrong</h2>
+          </div>
+          <p class="cc-helper">@ex.Message</p>
+          <TelerikButton OnClick="@(() => NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad:true))">Try again</TelerikButton>
+        </div>
+      </ErrorContent>
+    </ErrorBoundary>
+  </main>
+
+  <footer class="cc-footer" role="contentinfo">
+    <div class="cc-footer-content">
+      <span>&copy; @DateTime.Now.Year ChopChop Landscaping Services</span>
+      <span class="cc-subtle">Locally owned • Fully insured</span>
+      <button class="cc-install" @onclick="InstallPwa">Install App</button>
+    </div>
+  </footer>
+  
+  <div aria-live="polite" aria-atomic="true">
+    <TelerikNotification @ref="notifSuccess" Class="cc-toast-success" Width="360px" AutoHideAfter="3000" Position="NotificationPosition.BottomCenter" />
+  </div>
+  <div aria-live="assertive" aria-atomic="true">
+    <TelerikNotification @ref="notifError" Class="cc-toast-error" Width="360px" AutoHideAfter="5000" Position="NotificationPosition.TopCenter" />
+  </div>
+  @if (isBusy)
+  {
+    <TelerikLoader Visible="true" Overlay="true" Type="LoaderType.Pulsing" />
+  }
+</TelerikRootComponent>
+
+@code {
+  [Inject] IJSRuntime JS { get; set; } = default!;
+  [Inject] NavigationManager NavigationManager { get; set; } = default!;
+  [Inject] ChopChop.Services.UIService UI { get; set; } = default!;
+  private TelerikNotification? notifSuccess;
+  private TelerikNotification? notifError;
+  private bool isBusy;
+
+  protected override void OnInitialized()
+  {
+    UI.ToastRequested += OnToast;
+  UI.ErrorRequested += OnError;
+    UI.BusyChanged += OnBusy;
+  }
+
+  private void OnToast(string text)
+  {
+  notifSuccess?.Show(new NotificationModel { Text = text });
+    StateHasChanged();
+  }
+
+  private void OnBusy(bool value)
+  {
+    isBusy = value;
+    StateHasChanged();
+  }
+
+  public void Dispose()
+  {
+    UI.ToastRequested -= OnToast;
+    UI.ErrorRequested -= OnError;
+    UI.BusyChanged -= OnBusy;
+  }
+
+  private void OnError(string text)
+  {
+  notifError?.Show(new NotificationModel { Text = $"Heads up: {text}" });
+    StateHasChanged();
+  }
+
+  private async Task InstallPwa() => await JS.InvokeVoidAsync("ChopChopInstall.prompt");
+  private async Task ToggleTheme() => await JS.InvokeVoidAsync("ChopTheme.toggle");
+}

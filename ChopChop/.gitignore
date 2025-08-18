@@ -1,0 +1,38 @@
+# .NET / Blazor
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# IDE
+.vs/
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env and secrets
+.env
+**/*.secret
+# Ensure the local license is never committed
+/telerik-license.txt
+
+# Publish/Generated cache
+**/wwwroot/service-worker-assets.js
+**/service-worker-assets.js
+**/staticwebassets.*.json
+**/*.cache
+**/*.dswa.cache.json
+**/*.wasm
+**/*.wasm.gz
+**/*.js.gz
+**/*.json.gz
+**/tmp-webcil/
+**/webcil/
+
+# Logs
+*.log

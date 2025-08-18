@@ -1,0 +1,19 @@
+<div class="card" aria-label="Feedback">
+  <h3>Feedback</h3>
+  <p>Does the color scheme align with your brand? Are CTAs clear? Anything missing?</p>
+  <textarea class="btn secondary" style="width:100%;min-height:80px" @bind="message" aria-label="Feedback message"></textarea>
+  <div style="margin-top:8px">
+    <button class="btn" @onclick="Submit">Send Feedback</button>
+  </div>
+  @if (sent)
+  {
+    <p role="status" aria-live="polite">Thanks! We value your input.</p>
+  }
+</div>
+
+@code {
+  bool sent;
+  string? message;
+  void Submit(){ sent = true; CCTel_Send("feedback", new{ message }); }
+  [JSInvokable] public static void CCTel_Send(string evt, object data){}
+}

@@ -1,0 +1,106 @@
+@page "/"
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
+@using ChopChop.Shared
+@inject NavigationManager Navigation
+
+<PageTitle>ChopChop Landscaping — Lawn care, cleanups, hedge trimming</PageTitle>
+<HeadContent>
+  <link rel="canonical" href="@Navigation.Uri" />
+  <meta name="description" content="ChopChop Landscaping: Weekly lawn care, seasonal cleanups, and hedge trimming. Locally owned, fully insured. Get a quote in minutes." />
+  <meta name="keywords" content="lawn care, landscaping, hedge trimming, seasonal cleanups, local landscaping" />
+  <meta property="og:title" content="ChopChop Landscaping" />
+  <meta property="og:description" content="Dependable lawn care and landscaping. Book in minutes." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/android-icon-192x192.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <script type="application/ld+json">
+  {
+  "@@context": "https://schema.org",
+  "@@type": "LocalBusiness",
+    "name": "ChopChop Landscaping Services",
+    "image": "/android-icon-192x192.png",
+    "url": "/",
+    "description": "Weekly lawn care, seasonal cleanups, and hedge trimming.",
+    "areaServed": "Local service area",
+    "openingHours": "Mo-Fr 09:00-17:00"
+  }
+  </script>
+</HeadContent>
+
+<h1 class="sr-only">ChopChop Landscaping Services</h1>
+
+<section class="cc-hero fade-in slide-up">
+  <div class="cc-hero-content">
+    <h1>Landscapes that feel cared for—without you lifting a finger.</h1>
+    <p class="cc-subhead">Weekly lawn care, seasonal cleanups, and dependable pros. Get a quote in minutes.</p>
+    <div class="cc-cta">
+      <TelerikButton ThemeColor="Primary" Size="Large" OnClick="@(() => Navigation.NavigateTo("/booking"))">Book Now</TelerikButton>
+      <TelerikButton Class="cc-ghost" Size="Large" OnClick="@(() => Navigation.NavigateTo("/services"))">See Services</TelerikButton>
+    </div>
+    <ul class="cc-trust">
+      <li><strong>4.9/5</strong> average rating</li>
+      <li>Locally owned • fully insured</li>
+      <li>On-time guarantee</li>
+    </ul>
+  </div>
+  </section>
+
+<section class="cc-section">
+  <h2>What we do best</h2>
+  <div class="cc-grid-3">
+    @foreach (var svc in Services)
+    {
+      <TelerikCard Class="cc-card">
+        <CardHeader>
+          <h3>@svc.Name</h3>
+        </CardHeader>
+        <CardBody>
+          <p>@svc.Description</p>
+        </CardBody>
+        <CardActions>
+          <TelerikButton ThemeColor="Primary" OnClick="@(() => Navigation.NavigateTo($"/booking?service={svc.Id}"))">Get a Quote</TelerikButton>
+        </CardActions>
+      </TelerikCard>
+    }
+  </div>
+  <p class="cc-helper">Not sure? Pick what’s closest—we’ll fine‑tune on the call.</p>
+  
+  <div class="cc-ratings" aria-label="Customer ratings">
+    <div class="cc-ratings-row">
+      <TelerikRating Value="5" ReadOnly="true" Max="5" />
+      <span class="cc-muted">“They show up, it looks great, every time.” — J. Patel</span>
+    </div>
+  </div>
+</section>
+
+<section class="cc-section">
+  <h2>Questions, answered</h2>
+  <div class="cc-faqs">
+    <details>
+      <summary>How fast can I get service?</summary>
+      <p>Usually within 3–5 business days. We’ll confirm your time by email.</p>
+    </details>
+    <details>
+      <summary>Do you bag clippings?</summary>
+      <p>By default we mulch, but we can bag upon request.</p>
+    </details>
+    <details>
+      <summary>Are you insured?</summary>
+      <p>Yes—fully insured and locally owned.</p>
+    </details>
+  </div>
+</section>
+
+<Feedback />
+
+@code {
+  private List<Service> Services = new()
+  {
+      new("lawn", "Lawn Care", "A tidy, even cut—edges included. Weekly or bi‑weekly."),
+      new("cleanups", "Seasonal Cleanups", "Leaves gone, beds refreshed—spring or fall."),
+      new("hedge", "Hedge & Shrub Trimming", "Crisp lines, healthy growth.")
+  };
+
+  private record Service(string Id, string Name, string Description);
+}

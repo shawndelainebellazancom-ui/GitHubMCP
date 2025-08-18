@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
+    <RootNamespace>ChopChop</RootNamespace>
+    <AssemblyName>ChopChop</AssemblyName>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  <!-- USE_TELERIK env var takes precedence; default to true everywhere unless explicitly disabled -->
+  <UseTelerik Condition="'$(USE_TELERIK)' != ''">$(USE_TELERIK)</UseTelerik>
+  <UseTelerik Condition="'$(UseTelerik)' == ''">true</UseTelerik>
+  <!-- Fail the build on license issues in Release builds (per Telerik docs) -->
+  <TelerikLicensingStrict Condition="'$(Configuration)' == 'Release'">true</TelerikLicensingStrict>
+  <!-- Also treat Telerik license warnings as errors in Release -->
+  <WarningsAsErrors Condition="'$(Configuration)' == 'Release'">$(WarningsAsErrors);TKL001;TKL002;TKL003;TKL004;TKL101;TKL102;TKL103;TKL104;TKL105</WarningsAsErrors>
+  </PropertyGroup>
+
+  <!-- Telerik UI for Blazor (requires licensed feed). Set UseTelerik to true to include. -->
+  <ItemGroup Condition="'$(UseTelerik)' == 'true'">
+  <PackageReference Include="Telerik.UI.for.Blazor" />
+  </ItemGroup>
+
+  <ItemGroup>
+  <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />
+  <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ServiceWorker Include="wwwroot/service-worker.js" PublishedContent="wwwroot/service-worker.published.js" />
+  </ItemGroup>
+
+  <!-- Add a compile-time symbol when Telerik is enabled so source can #if around references. -->
+  <PropertyGroup Condition="'$(UseTelerik)' == 'true'">
+    <DefineConstants>$(DefineConstants);USE_TELERIK</DefineConstants>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,48 @@
+name: Deploy to Firebase Hosting
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'ChopChop/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      TELERIK_LICENSE: ${{ secrets.TELERIK_LICENSE }}
+      TELERIK_NUGET_SOURCE: ${{ secrets.TELERIK_NUGET_SOURCE }}
+      TELERIK_NUGET_USERNAME: ${{ secrets.TELERIK_NUGET_USERNAME }}
+      TELERIK_NUGET_TOKEN: ${{ secrets.TELERIK_NUGET_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Configure Telerik NuGet
+        if: env.TELERIK_NUGET_USERNAME != '' && env.TELERIK_NUGET_TOKEN != ''
+        run: |
+          dotnet nuget add source "${{ env.TELERIK_NUGET_SOURCE || 'https://nuget.telerik.com/v3/index.json' }}" \
+            --name telerik.com \
+            --username "${{ env.TELERIK_NUGET_USERNAME }}" \
+            --password "${{ env.TELERIK_NUGET_TOKEN }}" \
+            --store-password-in-clear-text
+      - name: Publish site
+        working-directory: ChopChop
+        env:
+          USE_TELERIK: 'true'
+        run: |
+          dotnet publish ChopChop.csproj -c Release -o publish --nologo
+      - name: Deploy
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: ${{ secrets.FIREBASE_PROJECT_ID }}
+          channelId: live
+          entrypoint: ./ChopChop
+          target: default
+          expires: 7d

@@ -1,0 +1,14 @@
+- name: Home
+  href: README.md
+- name: Articles
+  href: articles/
+- name: Specifications
+  items:
+  - name: Design Specs
+    href: DESIGN-SPECS.md
+  - name: Telerik Blueprint
+    href: TELERIK-BLUEPRINT.md
+  - name: Figma Sketch
+    href: FIGMA-SKETCH.json
+- name: API
+  href: api/

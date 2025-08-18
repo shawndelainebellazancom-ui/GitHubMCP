@@ -1,0 +1,55 @@
+@page "/contact"
+@using System.ComponentModel.DataAnnotations
+@using Telerik.Blazor
+@using Microsoft.AspNetCore.Components.Forms
+@inject NavigationManager Nav
+@inject ChopChop.Services.UIService UI
+
+<PageTitle>Contact — ChopChop Landscaping</PageTitle>
+<HeadContent>
+  <link rel="canonical" href="@Nav.Uri" />
+  <meta name="description" content="Contact ChopChop Landscaping. We reply within one business day." />
+  <meta property="og:title" content="Contact ChopChop" />
+  <meta property="og:description" content="Get in touch for lawn care and landscaping." />
+</HeadContent>
+
+<section class="cc-section">
+  <h1>We’re here to help</h1>
+  <div class="cc-grid-2">
+    <div class="card cc-card">
+      <EditForm Model="model" OnValidSubmit="SendAsync">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <TelerikFloatingLabel Text="Name"><TelerikTextBox @bind-Value="model.Name" Width="100%" /></TelerikFloatingLabel>
+        <TelerikFloatingLabel Text="Email"><TelerikTextBox @bind-Value="model.Email" Type="TextBoxType.Email" Width="100%" /></TelerikFloatingLabel>
+        <TelerikFloatingLabel Text="Message"><TelerikTextArea @bind-Value="model.Message" Rows="4" Width="100%" /></TelerikFloatingLabel>
+        <div style="margin-top:12px">
+          <TelerikButton ThemeColor="Primary" ButtonType="ButtonType.Submit">Send Message</TelerikButton>
+        </div>
+      </EditForm>
+      <p class="cc-hint">We reply within one business day.</p>
+    </div>
+    <div class="cc-contact-alt card cc-card">
+      <p><strong>Call:</strong> (555) 014-1234 <span class="cc-subtle">Weekdays 8–6</span></p>
+      <p><strong>Email:</strong> hello@chopchop.land</p>
+      <p><strong>Address:</strong> 123 Maple St, Springfield</p>
+    </div>
+  </div>
+</section>
+
+@code {
+  private ContactModel model = new();
+  private async Task SendAsync()
+  {
+    await Task.Delay(300);
+    UI.ShowToast("Thanks! We’ll be in touch within one business day.");
+    model = new(); // reset form
+  }
+
+  public class ContactModel
+  {
+    [Required] public string Name { get; set; } = "";
+    [Required, EmailAddress] public string Email { get; set; } = "";
+    [Required, StringLength(1000)] public string Message { get; set; } = "";
+  }
+}
