@@ -1,0 +1,74 @@
+<Project>
+
+  <!-- Minimal diagnostics only; avoid injecting items that duplicate project-specific items -->
+  <Target Name="DisplayProjectInfo" BeforeTargets="Build">
+    <Message Text="Building $(MSBuildProjectName)" Importance="high" />
+  </Target>
+
+  <!-- Wire tasks assembly if available; opt-in via EnableAppSettingsTask -->
+  <PropertyGroup>
+    <EnableAppSettingsTask Condition="'$(EnableAppSettingsTask)' == ''">false</EnableAppSettingsTask>
+  </PropertyGroup>
+
+  <UsingTask TaskName="ProjectName.BuildTasks.UpdateAppSettings"
+             Condition="false"
+             AssemblyFile="$(MSBuildThisFileDirectory)src/ProjectName.BuildTasks/bin/$(Configuration)/net10.0/ProjectName.BuildTasks.dll" />
+
+  <Target Name="PrepareTransformedAppSettings"
+          Condition="'$(EnableAppSettingsTask)' == 'true'"
+          BeforeTargets="CopyFilesToOutputDirectory">
+    <PropertyGroup>
+      <_SourceAppSettings>$(MSBuildProjectDirectory)\appsettings.json</_SourceAppSettings>
+      <_OutputTransformed>$(IntermediateOutputPath)appsettings.generated.json</_OutputTransformed>
+    </PropertyGroup>
+
+    <UpdateAppSettings SourcePath="$(_SourceAppSettings)"
+                       Overrides="$(AppSettingsOverrides)"
+                       OverridesFile="$(AppSettingsOverridesFile)"
+                       OutputPath="$(_OutputTransformed)"
+                       MergeStrategy="$(AppSettingsMergeStrategy)" />
+
+    <ItemGroup>
+      <_TransformedAppSettings Include="$(_OutputTransformed)" Condition="Exists('$(_OutputTransformed)')" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(_TransformedAppSettings)"
+          DestinationFiles="$(OutDir)appsettings.json"
+          SkipUnchangedFiles="true"
+          Condition="@(_TransformedAppSettings) != ''" />
+  </Target>
+
+  <!-- Optional: run the process generator to produce index.generated.html before building web outputs -->
+  <PropertyGroup>
+    <EnableProcessGenerator Condition="'$(EnableProcessGenerator)' == ''">false</EnableProcessGenerator>
+  </PropertyGroup>
+
+  <UsingTask TaskName="ProjectName.BuildTasks.RunProcessGenerator"
+             Condition="false"
+             AssemblyFile="$(MSBuildThisFileDirectory)src/ProjectName.BuildTasks/bin/$(Configuration)/net10.0/ProjectName.BuildTasks.dll" />
+
+  <Target Name="RunProcessGenerator"
+          Condition="false"
+          BeforeTargets="Build"
+  Inputs="$(MSBuildThisFileDirectory)src/ProjectName.Process/**;$(MSBuildThisFileDirectory)src/ProjectName.Domain/**;$(MSBuildThisFileDirectory)src/ProjectName.Generator/**;$(ProcessIntent);$(ProcessContext);$(ProcessReasoning);$(ProcessIterations);$(ProcessFeedback)"
+          Outputs="$(MSBuildThisFileDirectory)src/ProjectName.Web/wwwroot/index.generated.html;$(MSBuildThisFileDirectory)src/ProjectName.Web/wwwroot/app.json;$(MSBuildThisFileDirectory)src/ProjectName.Web/wwwroot/thought.json;$(MSBuildThisFileDirectory)src/ProjectName.Web/wwwroot/project-manifest.json;$(MSBuildThisFileDirectory)src/ProjectName.Web/wwwroot/README.generated.md">
+          
+    <RunProcessGenerator ProjectRoot="$(MSBuildThisFileDirectory.TrimEnd('\'))"
+         Intent="$(ProcessIntent)"
+         Context="$(ProcessContext)"
+         Reasoning="$(ProcessReasoning)"
+         Iterations="$(ProcessIterations)"
+         Feedback="$(ProcessFeedback)"
+         Configuration="$(Configuration)" />
+
+    <!-- Keep a canonical index.html for simplicity by copying after generation -->
+    <ItemGroup>
+      <_GeneratedIndex Include="$(MSBuildThisFileDirectory)src/ProjectName.Web/wwwroot/index.generated.html" Condition="Exists('$(MSBuildThisFileDirectory)src/ProjectName.Web/wwwroot/index.generated.html')" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_GeneratedIndex)"
+          DestinationFiles="$(MSBuildThisFileDirectory)src/ProjectName.Web/wwwroot/index.html"
+          SkipUnchangedFiles="true"
+          Condition="@(_GeneratedIndex) != ''" />
+  </Target>
+
+</Project>

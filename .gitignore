@@ -1,0 +1,22 @@
+# Global ignores for this workspace
+.examples/
+**/bin/
+**/obj/
+**/.vs/
+**/.idea/
+**/.vscode/
+**/*.user
+**/*.suo
+**/*.userosscache
+**/*.sln.docstates
+**/node_modules/
+**/dist/
+**/*.log
+**/.DS_Store
+ChopChop/telerik-license.txt
+
+# Local environment files (secrets)
+.env
+*.env
+**/*.env
+.env.*

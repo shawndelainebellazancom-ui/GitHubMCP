@@ -1,0 +1,60 @@
+name: build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+env:
+  USE_TELERIK: 'true'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            10.0.x
+            9.0.x
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Configure Telerik private feed
+        shell: bash
+        env:
+          TELERIK_NUGET_USERNAME: ${{ secrets.TELERIK_NUGET_USERNAME }}
+          TELERIK_NUGET_TOKEN: ${{ secrets.TELERIK_NUGET_TOKEN }}
+          TELERIK_NUGET_SOURCE: ${{ secrets.TELERIK_NUGET_SOURCE }}
+        run: |
+          SRC_URL="${TELERIK_NUGET_SOURCE:-https://nuget.telerik.com/v3/index.json}"
+          dotnet nuget remove source TelerikNuGetV3 || true
+          dotnet nuget add source "$SRC_URL" \
+            --name TelerikNuGetV3 \
+            --username "$TELERIK_NUGET_USERNAME" \
+            --password "$TELERIK_NUGET_TOKEN" \
+            --store-password-in-clear-text false
+
+      - name: Restore
+        run: dotnet restore ./ChopChop/ChopChop.csproj
+
+      - name: Build (Release)
+        run: dotnet build ./ChopChop/ChopChop.csproj -c Release --no-restore
+
+      - name: Publish static assets artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: chopchop-wwwroot
+          path: ChopChop/bin/Release/net10.0/wwwroot
