@@ -17,12 +17,29 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Detect Telerik secrets
+        id: detect
+        shell: bash
+        env:
+          S_USER: ${{ secrets.TELERIK_NUGET_USERNAME }}
+          S_TOKEN: ${{ secrets.TELERIK_NUGET_TOKEN }}
+        run: |
+          if [ -n "$S_USER" ] && [ -n "$S_TOKEN" ]; then
+            echo "HAS_TELERIK=true" >> "$GITHUB_ENV"
+            echo "Telerik secrets found; building with Telerik."
+          else
+            echo "HAS_TELERIK=false" >> "$GITHUB_ENV"
+            echo "USE_TELERIK=false" >> "$GITHUB_ENV"
+            echo "No Telerik secrets found; building without Telerik."
+          fi
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
             10.0.x
             9.0.x
+          dotnet-quality: 'preview'
 
       - name: Cache NuGet packages
         uses: actions/cache@v4
@@ -34,6 +51,7 @@ jobs:
 
       - name: Configure Telerik private feed
         shell: bash
+        if: env.HAS_TELERIK == 'true'
         env:
           TELERIK_NUGET_USERNAME: ${{ secrets.TELERIK_NUGET_USERNAME }}
           TELERIK_NUGET_TOKEN: ${{ secrets.TELERIK_NUGET_TOKEN }}
@@ -45,7 +63,7 @@ jobs:
             --name TelerikNuGetV3 \
             --username "$TELERIK_NUGET_USERNAME" \
             --password "$TELERIK_NUGET_TOKEN" \
-            --store-password-in-clear-text false
+            --store-password-in-clear-text
 
       - name: Restore
         run: dotnet restore ./ChopChop/ChopChop.csproj
