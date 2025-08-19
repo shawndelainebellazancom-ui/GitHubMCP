@@ -106,6 +106,8 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           projectName: ${{ secrets.CF_PAGES_PROJECT }}
-          directory: site
+          # Run wrangler from the staged site folder to avoid picking up any repo-level "functions" dirs
+          workingDirectory: site
+          directory: .
           branch: ${{ github.ref_name }}
           wranglerVersion: '4'
