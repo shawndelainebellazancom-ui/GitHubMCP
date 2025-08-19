@@ -101,6 +101,7 @@ jobs:
           path: site
 
       - name: Upload to Cloudflare Pages
+        id: pages
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -111,3 +112,9 @@ jobs:
           directory: .
           branch: ${{ github.ref_name }}
           wranglerVersion: '4'
+
+      - name: Output deployment info
+        run: |
+          echo "Deployment environment: ${{ steps.pages.outputs.environment }}"
+          echo "Deployment URL:        ${{ steps.pages.outputs.url }}"
+          echo "Deployment alias:      ${{ steps.pages.outputs.alias }}"
