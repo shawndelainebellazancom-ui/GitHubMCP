@@ -20,6 +20,9 @@ jobs:
       TELERIK_NUGET_SOURCE: ${{ secrets.TELERIK_NUGET_SOURCE }}
       TELERIK_NUGET_USERNAME: ${{ secrets.TELERIK_NUGET_USERNAME }}
       TELERIK_NUGET_TOKEN: ${{ secrets.TELERIK_NUGET_TOKEN }}
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+  CF_PAGES_PROJECT: ${{ secrets.CF_PAGES_PROJECT }}
     steps:
       - uses: actions/checkout@v4
 
