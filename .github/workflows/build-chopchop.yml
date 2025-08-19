@@ -36,7 +36,8 @@ jobs:
           dotnet nuget add source https://nuget.telerik.com/v3/index.json `
             --name TelerikNuGetV3 `
             --username "${env:TELERIK_NUGET_USERNAME}" `
-            --password "${env:TELERIK_NUGET_TOKEN}"
+            --password "${env:TELERIK_NUGET_TOKEN}" `
+            --store-password-in-clear-text
 
       - name: Restore
         run: dotnet restore .\ChopChop\ChopChop.csproj
