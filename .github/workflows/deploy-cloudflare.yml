@@ -100,52 +100,15 @@ jobs:
           name: chopchop-site
           path: site
 
-      - name: Upload to Cloudflare Pages
-        id: pages
-        uses: cloudflare/pages-action@v1
+      - name: Deploy with Wrangler (Cloudflare CLI)
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          projectName: ${{ secrets.CF_PAGES_PROJECT }}
-          # Run wrangler from the staged site folder to avoid picking up any repo-level "functions" dirs
           workingDirectory: site
-          directory: .
-          branch: ${{ github.ref_name }}
-          wranglerVersion: '4'
+          command: pages deploy . --project-name ${{ secrets.CF_PAGES_PROJECT }} --branch ${{ github.ref_name }}
 
-      - name: Output deployment info
-        run: |
-          echo "Deployment environment: ${{ steps.pages.outputs.environment }}"
-          echo "Deployment URL:        ${{ steps.pages.outputs.url }}"
-          echo "Deployment alias:      ${{ steps.pages.outputs.alias }}"
-
-      - name: Smoke test (curl deployed URL)
-        shell: bash
-        continue-on-error: true
-        run: |
-          set -euo pipefail
-          BASE="${{ steps.pages.outputs.alias }}"
-          if [ -z "$BASE" ]; then BASE="${{ steps.pages.outputs.url }}"; fi
-          if [ -z "$BASE" ]; then echo "No deployment URL available from action outputs"; exit 0; fi
-          echo "Testing BASE=$BASE"
-          endpoints=(
-            "/"
-            "/index.html"
-            "/_framework/blazor.boot.json"
-            "/_framework/blazor.webassembly.js"
-            "/service-worker.js"
-            "/_content/Telerik.UI.for.Blazor/js/telerik-blazor.js?v=2025-08-19-01"
-          )
-          for p in "${endpoints[@]}"; do
-            echo "==> $BASE$p"
-            # Try HEAD first; fallback to GET
-            curl -sS -o /dev/null -D - -X HEAD "$BASE$p" || curl -sS -o /dev/null -D - "$BASE$p"
-            echo
-          done
-          echo "- Checking index markers -"
-          html="$(curl -sS "$BASE/")"
-          if echo "$html" | grep -qE 'v2025-08-19-01|ASSET_STAMP'; then echo "cache-bust stamp present: yes"; else echo "cache-bust stamp present: no"; fi
-          if echo "$html" | grep -q '_content/Telerik.UI.for.Blazor/js/telerik-blazor.js'; then echo "telerik js referenced: yes"; else echo "telerik js referenced: no"; fi
+  # Using custom domain for smoke test; ensure your Pages project has tooensure.com bound
 
       - name: Smoke test (custom domain tooensure.com)
         if: always()
