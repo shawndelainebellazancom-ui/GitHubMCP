@@ -49,16 +49,28 @@ jobs:
 
       - name: Publish site
         working-directory: ChopChop
+        shell: pwsh
         run: |
-          dotnet publish ChopChop.csproj -c Release -o publish --nologo
+          dotnet publish ChopChop.csproj -c Release --nologo
+
+      - name: Prepare site folder (published wwwroot)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $site = Join-Path $env:GITHUB_WORKSPACE 'site'
+          New-Item -ItemType Directory -Force -Path $site | Out-Null
+          # Find the first publish folder like ChopChop/bin/Release/<tfm>/publish
+          $pub = Get-ChildItem -Path 'ChopChop\bin\Release' -Directory -Recurse | Where-Object { $_.Name -eq 'publish' } | Select-Object -First 1
+          if (-not $pub) { Write-Error 'Publish folder not found under ChopChop\bin\Release' }
+          $src = Join-Path $pub.FullName 'wwwroot'
+          if (-not (Test-Path $src)) { Write-Error "Published wwwroot not found at $src" }
+          Copy-Item -Path (Join-Path $src '*') -Destination $site -Recurse
 
       - name: Upload published wwwroot as artifact
         uses: actions/upload-artifact@v4
         with:
           name: chopchop-site
-          path: |
-            ChopChop/publish/wwwroot
-            ChopChop/wwwroot
+          path: site
 
   deploy:
     needs: build
