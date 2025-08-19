@@ -23,16 +23,20 @@ This app is a Blazor WebAssembly PWA. Publish outputs land in `bin/Release/net8.
   - `CF_PAGES_PROJECT`
   - `TELERIK_*` as above
 - Output directory: `ChopChop/bin/Release/net8.0/wwwroot`
-- DNS: Create a CNAME for your subdomain to `<project>.pages.dev` in Cloudflare. Point apex via CNAME flattening if desired.
+- DNS: In the Cloudflare Pages project, add your custom domain; Cloudflare will create the proxied CNAME in your zone. For apex, Cloudflare handles CNAME flattening. If adding manually, CNAME your subdomain to `<project>.pages.dev`.
 
 ## Firebase Hosting
 - Workflow: `.github/workflows/deploy-firebase.yml`
 - Secrets required:
-  - `FIREBASE_SERVICE_ACCOUNT` (JSON)
-  - `FIREBASE_PROJECT_ID`
+  - `FIREBASE_TOKEN` (for CLI) or `FIREBASE_SERVICE_ACCOUNT` (JSON) if using a service account workflow
+  - `FIREBASE_PROJECT`
   - `TELERIK_*` as above
 - `firebase.json` configured to deploy the publish output folder.
-- DNS: Add an A record to Firebase provided endpoints or use TXT verification in Firebase console for custom domains.
+- Cloudflare DNS for custom domains:
+  1) In Firebase Console > Hosting > Add custom domain. Follow the wizard; it will show exact DNS records (TXT for verification, and CNAME for subdomains or A records for apex).
+  2) In Cloudflare DNS, create the records exactly as shown. Set proxy to DNS only (gray cloud) until Firebase verifies and provisions SSL.
+  3) After SSL is active in Firebase, you may enable the Cloudflare proxy (orange cloud). Keep SSL/TLS mode at Full (strict).
+  4) Optional: add Cache Rules for static assets (`**/*.wasm, **/*.dll, **/*.js, **/*.css, **/*.woff2`) and enable Brotli + HTTP/3.
 
 ## GitHub Pages
 - Workflow: `.github/workflows/deploy-pages.yml`

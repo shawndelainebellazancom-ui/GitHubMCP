@@ -13,16 +13,13 @@ permissions:
   deployments: write
 
 jobs:
-  deploy:
+  build:
     runs-on: windows-latest
     env:
       TELERIK_LICENSE: ${{ secrets.TELERIK_LICENSE }}
       TELERIK_NUGET_SOURCE: ${{ secrets.TELERIK_NUGET_SOURCE }}
       TELERIK_NUGET_USERNAME: ${{ secrets.TELERIK_NUGET_USERNAME }}
       TELERIK_NUGET_TOKEN: ${{ secrets.TELERIK_NUGET_TOKEN }}
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
-      CF_PAGES_PROJECT: ${{ secrets.CF_PAGES_PROJECT }}
     steps:
       - uses: actions/checkout@v4
 
@@ -31,17 +28,9 @@ jobs:
           dotnet-version: '10.0.x'
           dotnet-quality: 'preview'
 
-      - name: Fail if required secrets are missing
+      - name: Warn if Telerik secrets missing
         shell: pwsh
         run: |
-          $missing = @()
-          if (-not $env:CLOUDFLARE_API_TOKEN) { $missing += 'CLOUDFLARE_API_TOKEN' }
-          if (-not $env:CF_ACCOUNT_ID) { $missing += 'CF_ACCOUNT_ID' }
-          if (-not $env:CF_PAGES_PROJECT) { $missing += 'CF_PAGES_PROJECT' }
-          if ($missing.Count -gt 0) {
-            Write-Error ("Missing required secrets: " + ($missing -join ', '))
-            exit 1
-          }
           if (-not $env:TELERIK_NUGET_USERNAME -or -not $env:TELERIK_NUGET_TOKEN) {
             Write-Host 'Warning: TELERIK_* secrets not set. If your Telerik feed requires auth, restore will fail.' -ForegroundColor Yellow
           }
@@ -63,11 +52,48 @@ jobs:
         run: |
           dotnet publish ChopChop.csproj -c Release -o publish --nologo
 
+      - name: Upload published wwwroot as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: chopchop-site
+          path: |
+            ChopChop/publish/wwwroot
+            ChopChop/wwwroot
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+      CF_PAGES_PROJECT: ${{ secrets.CF_PAGES_PROJECT }}
+    steps:
+      - name: Fail if required secrets are missing
+        run: |
+          missing=()
+          [[ -z "${CLOUDFLARE_API_TOKEN}" ]] && missing+=(CLOUDFLARE_API_TOKEN)
+          [[ -z "${CF_ACCOUNT_ID}" ]] && missing+=(CF_ACCOUNT_ID)
+          [[ -z "${CF_PAGES_PROJECT}" ]] && missing+=(CF_PAGES_PROJECT)
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "Missing required secrets: ${missing[*]}" >&2
+            exit 1
+          fi
+
+      - name: Download site artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: chopchop-site
+          path: site
+
       - name: Upload to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           projectName: ${{ secrets.CF_PAGES_PROJECT }}
-          directory: ChopChop/publish/wwwroot
+          directory: site
           branch: ${{ github.ref_name }}
+          wranglerVersion: '4'

@@ -9,7 +9,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     permissions:
       contents: read
       deployments: write
@@ -24,13 +24,30 @@ jobs:
         with:
           dotnet-version: '10.0.x'
           dotnet-quality: 'preview'
+      - name: Fail if required secrets are missing
+        shell: pwsh
+        run: |
+          $missing = @()
+          if (-not $env:CLOUDFLARE_API_TOKEN) { $missing += 'CLOUDFLARE_API_TOKEN' }
+          if (-not $env:CF_ACCOUNT_ID) { $missing += 'CF_ACCOUNT_ID' }
+          if (-not $env:CF_PAGES_PROJECT) { $missing += 'CF_PAGES_PROJECT' }
+          if ($missing.Count -gt 0) {
+            Write-Error ("Missing required secrets: " + ($missing -join ', '))
+            exit 1
+          }
+          if (-not $env:TELERIK_NUGET_USERNAME -or -not $env:TELERIK_NUGET_TOKEN) {
+            Write-Host 'Warning: TELERIK_* secrets not set. If your Telerik feed requires auth, restore will fail.' -ForegroundColor Yellow
+          }
       - name: Configure Telerik NuGet
         if: env.TELERIK_NUGET_USERNAME != '' && env.TELERIK_NUGET_TOKEN != ''
+        shell: pwsh
         run: |
-          dotnet nuget add source "${{ env.TELERIK_NUGET_SOURCE || 'https://nuget.telerik.com/v3/index.json' }}" \
-            --name telerik.com \
-            --username "${{ env.TELERIK_NUGET_USERNAME }}" \
-            --password "${{ env.TELERIK_NUGET_TOKEN }}" \
+          dotnet nuget remove source TelerikNuGetV3 -v q || $true
+          $source = if ($env:TELERIK_NUGET_SOURCE) { $env:TELERIK_NUGET_SOURCE } else { 'https://nuget.telerik.com/v3/index.json' }
+          dotnet nuget add source $source `
+            --name TelerikNuGetV3 `
+            --username "${env:TELERIK_NUGET_USERNAME}" `
+            --password "${env:TELERIK_NUGET_TOKEN}" `
             --store-password-in-clear-text
       - name: Publish site
         working-directory: ChopChop
