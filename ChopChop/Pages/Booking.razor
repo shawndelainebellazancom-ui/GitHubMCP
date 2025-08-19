@@ -1,6 +1,8 @@
 @page "/booking"
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Components.Forms
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
 @inject NavigationManager Nav
 @inject ChopChop.Services.UIService UI
 
@@ -22,32 +24,28 @@
             <ValidationSummary />
             <div class="row md-2">
                 <div style="width:100%">
-                    <TelerikFloatingLabel Text="Service">
-                        <TelerikDropDownList id="service" Data="@ServiceOptions" TextField="Name" ValueField="Id" @bind-Value="model.ServiceId" Width="100%" />
-                    </TelerikFloatingLabel>
+                    <label for="service">Service</label>
+                    <TelerikDropDownList Data="ServiceOptions" TextField="Name" ValueField="Id" @bind-Value="model.ServiceId" />
                     <div class="cc-hint">Not sure? Pick what’s closest—we’ll confirm on the call.</div>
                     <ValidationMessage For="@(() => model.ServiceId)" />
                 </div>
                 <div style="width:100%">
-                    <TelerikFloatingLabel Text="Preferred Date">
-                        <TelerikDatePicker id="date" @bind-Value="model.Date" Width="100%" />
-                    </TelerikFloatingLabel>
+                    <label for="date">Preferred Date</label>
+                    <TelerikDatePicker @bind-Value="model.Date" />
                     <div class="cc-hint">We’ll email to confirm a time.</div>
                     <ValidationMessage For="@(() => model.Date)" />
                 </div>
             </div>
             <div class="row md-2">
                 <div style="width:100%">
-                    <TelerikFloatingLabel Text="Service address">
-                        <TelerikTextBox id="address" @bind-Value="model.Address" Width="100%" />
-                    </TelerikFloatingLabel>
+                    <label for="address">Service address</label>
+                    <TelerikTextBox @bind-Value="model.Address" />
                     <div class="cc-hint">Used to confirm service area.</div>
                     <ValidationMessage For="@(() => model.Address)" />
                 </div>
                 <div style="width:100%">
-                    <TelerikFloatingLabel Text="Email">
-                        <TelerikTextBox id="contact" @bind-Value="model.Contact" Width="100%" />
-                    </TelerikFloatingLabel>
+                    <label for="contact">Email</label>
+                    <TelerikTextBox @bind-Value="model.Contact" InputMode="email" AutoComplete="email" />
                     <div class="cc-hint">For confirmations and reminders.</div>
                     <ValidationMessage For="@(() => model.Contact)" />
                 </div>
@@ -57,8 +55,8 @@
                 <TelerikCheckBox @bind-Value="model.AddFertilizer" /> <span>Add fertilizer</span>
             </div>
             <div style="margin-top:12px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
-                <TelerikButton ThemeColor="Primary" ButtonType="ButtonType.Submit">Request Booking</TelerikButton>
-                <TelerikButton Class="cc-ghost" OnClick="@(() => Nav.NavigateTo("/pricing"))">See Pricing</TelerikButton>
+                <TelerikButton ButtonType="@ButtonType.Submit">Request Booking</TelerikButton>
+                <TelerikButton ButtonType="@ButtonType.Button" OnClick='@(() => Nav.NavigateTo("/pricing"))'>See Pricing</TelerikButton>
             </div>
         </EditForm>
     </div>

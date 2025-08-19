@@ -1,8 +1,8 @@
 @page "/"
-@using Telerik.Blazor
-@using Telerik.Blazor.Components
 @using ChopChop.Shared
 @inject NavigationManager Navigation
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
 
 <PageTitle>ChopChop Landscaping — Lawn care, cleanups, hedge trimming</PageTitle>
 <HeadContent>
@@ -35,8 +35,8 @@
     <h1>Landscapes that feel cared for—without you lifting a finger.</h1>
     <p class="cc-subhead">Weekly lawn care, seasonal cleanups, and dependable pros. Get a quote in minutes.</p>
     <div class="cc-cta">
-      <TelerikButton ThemeColor="Primary" Size="Large" OnClick="@(() => Navigation.NavigateTo("/booking"))">Book Now</TelerikButton>
-      <TelerikButton Class="cc-ghost" Size="Large" OnClick="@(() => Navigation.NavigateTo("/services"))">See Services</TelerikButton>
+  <TelerikButton ThemeColor="primary" Size="Large" OnClick='@(() => Navigation.NavigateTo("/booking"))'>Book Now</TelerikButton>
+  <TelerikButton ThemeColor="base" Size="Large" OnClick='@(() => Navigation.NavigateTo("/services"))'>See Services</TelerikButton>
     </div>
     <ul class="cc-trust">
       <li><strong>4.9/5</strong> average rating</li>
@@ -44,31 +44,29 @@
       <li>On-time guarantee</li>
     </ul>
   </div>
-  </section>
+</section>
 
 <section class="cc-section">
   <h2>What we do best</h2>
   <div class="cc-grid-3">
     @foreach (var svc in Services)
     {
-      <TelerikCard Class="cc-card">
-        <CardHeader>
-          <h3>@svc.Name</h3>
-        </CardHeader>
-        <CardBody>
+      <div class="cc-card">
+        <div class="cc-card-header"><h3>@svc.Name</h3></div>
+        <div class="cc-card-body">
           <p>@svc.Description</p>
-        </CardBody>
-        <CardActions>
-          <TelerikButton ThemeColor="Primary" OnClick="@(() => Navigation.NavigateTo($"/booking?service={svc.Id}"))">Get a Quote</TelerikButton>
-        </CardActions>
-      </TelerikCard>
+        </div>
+  <div class="cc-card-actions">
+    <TelerikButton ThemeColor="primary" OnClick='@(() => Navigation.NavigateTo($"/booking?service={svc.Id}"))'>Get a Quote</TelerikButton>
+  </div>
+      </div>
     }
   </div>
   <p class="cc-helper">Not sure? Pick what’s closest—we’ll fine‑tune on the call.</p>
   
   <div class="cc-ratings" aria-label="Customer ratings">
     <div class="cc-ratings-row">
-      <TelerikRating Value="5" ReadOnly="true" Max="5" />
+      <span aria-hidden="true" class="cc-stars">★★★★★</span>
       <span class="cc-muted">“They show up, it looks great, every time.” — J. Patel</span>
     </div>
   </div>

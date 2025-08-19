@@ -26,11 +26,12 @@ jobs:
       TELERIK_NUGET_TOKEN: ${{ secrets.TELERIK_NUGET_TOKEN }}
       PAGES_BASE_PATH: ${{ vars.PAGES_BASE_PATH }} # e.g. /owner-repo/
       PAGES_CUSTOM_DOMAIN: ${{ vars.PAGES_CUSTOM_DOMAIN }} # e.g. app.example.com
-    steps:
+  steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '10.0.x'
+          dotnet-quality: 'preview'
 
       - name: Configure Telerik NuGet (if credentials provided)
         if: env.TELERIK_NUGET_USERNAME != '' && env.TELERIK_NUGET_TOKEN != ''
@@ -44,8 +45,6 @@ jobs:
 
       - name: Build & Publish
         working-directory: ChopChop
-        env:
-          USE_TELERIK: 'true'
         run: |
           dotnet publish ChopChop.csproj -c Release -o publish --nologo
           OUT_DIR="publish/wwwroot"

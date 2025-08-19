@@ -1,9 +1,9 @@
-# ChopChop Blazor PWA
+# ChopChop Blazor PWA (Telerik-first)
 
 Run locally (Windows PowerShell):
 
 ```powershell
-# Requires .NET 8 SDK
+# Requires .NET 10 SDK (Preview)
 cd g:\GitHubMCP\ChopChop
 # Restore and run
 dotnet restore
@@ -34,20 +34,16 @@ Feedback
 - Open `docs/DESIGN-SPECS.md` and edit colors/typography as needed.
 
 Telerik UI for Blazor
-- Already wired in this project. To enable in a shell: set `USE_TELERIK=true` and ensure your NuGet source has credentials.
-- Env-based setup (PowerShell):
+- Required by default. Configure the private Telerik NuGet feed once, then restore/build.
+- Setup (with credentials in `.env`):
 	```powershell
-	# one-time: copy license
-	Copy-Item g:\GitHubMCP\ChopChop\telerik-license.txt "$env:APPDATA\Telerik\telerik-license.txt" -Force
-	# per-shell: enable and configure source (username can be your Telerik email; token is your API key)
-	$env:USE_TELERIK = 'true'
-	$env:TELERIK_NUGET_SOURCE = 'https://nuget.telerik.com/v3/index.json'
-	$env:TELERIK_NUGET_USERNAME = '<your-email>'
-	$env:TELERIK_NUGET_TOKEN = '<your-api-key>'
-	dotnet nuget update source telerik.com --username $env:TELERIK_NUGET_USERNAME --password $env:TELERIK_NUGET_TOKEN --store-password-in-clear-text
+	# 1) Fill g:\GitHubMCP\.env from .env.example (username = your Telerik account email, token = API key)
+	# 2) Run the helper to add the Telerik feed and restore
+	powershell -NoProfile -ExecutionPolicy Bypass -File g:\GitHubMCP\scripts\setup-telerik-feed.ps1
+	# 3) Build/Run
+	dotnet build .\ChopChop\ChopChop.csproj -c Release
+	dotnet run --project .\ChopChop\ChopChop.csproj
 	```
-- Pages converted to Telerik: Services, Pricing, Booking (with FloatingLabels and validation messages). The layout is wrapped in `TelerikRootComponent`.
-- If you don’t want Telerik, unset or set `USE_TELERIK=false`.
 
 AI integrations
 - Dev page: navigate to `/ai` to test an Ollama-compatible endpoint (defaults to `http://localhost:11434`).
@@ -57,11 +53,11 @@ AI integrations
 	- For Hugging Face, add repo secret `HF_TOKEN`.
 
 Secret bootstrap
-- Optional helper to sync local .env or APPDATA license to repo secrets using GitHub CLI:
+- Optional helper to sync local `.env` secrets to repo secrets using GitHub CLI:
 	- `scripts/sync-gh-secrets.ps1 [-EnvFile g:\GitHubMCP\.env] [-IncludeHF]`
 	- Requires `gh auth login` beforehand.
 
 .env
-- Place non-committed settings in `g:\GitHubMCP\.env`. The build reads `USE_TELERIK` when present. Other sample keys:
-	- `TELERIK_NUGET_SOURCE`, `TELERIK_NUGET_USERNAME`, `TELERIK_NUGET_TOKEN`
+- Place non-committed settings in `g:\GitHubMCP\.env`. Keys:
+	- `TELERIK_NUGET_SOURCE` (optional), `TELERIK_NUGET_USERNAME`, `TELERIK_NUGET_TOKEN`
 	- `PUBLIC_*` branding options

@@ -8,7 +8,10 @@ on:
     branches: [ main, master ]
 
 env:
-  USE_TELERIK: 'true'
+  # Telerik is required by default; ensure secrets are present in repo/org settings
+  TELERIK_NUGET_SOURCE: ${{ secrets.TELERIK_NUGET_SOURCE }}
+  TELERIK_NUGET_USERNAME: ${{ secrets.TELERIK_NUGET_USERNAME }}
+  TELERIK_NUGET_TOKEN: ${{ secrets.TELERIK_NUGET_TOKEN }}
 
 jobs:
   build:
@@ -17,28 +20,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Detect Telerik secrets
-        id: detect
+      - name: Fail if Telerik secrets missing
         shell: bash
-        env:
-          S_USER: ${{ secrets.TELERIK_NUGET_USERNAME }}
-          S_TOKEN: ${{ secrets.TELERIK_NUGET_TOKEN }}
         run: |
-          if [ -n "$S_USER" ] && [ -n "$S_TOKEN" ]; then
-            echo "HAS_TELERIK=true" >> "$GITHUB_ENV"
-            echo "Telerik secrets found; building with Telerik."
-          else
-            echo "HAS_TELERIK=false" >> "$GITHUB_ENV"
-            echo "USE_TELERIK=false" >> "$GITHUB_ENV"
-            echo "No Telerik secrets found; building without Telerik."
+          if [ -z "${{ env.TELERIK_NUGET_USERNAME }}" ] || [ -z "${{ env.TELERIK_NUGET_TOKEN }}" ]; then
+            echo "Telerik secrets are required. Please configure TELERIK_NUGET_USERNAME and TELERIK_NUGET_TOKEN." >&2
+            exit 1
           fi
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: |
-            10.0.x
-            9.0.x
+          dotnet-version: '10.0.x'
           dotnet-quality: 'preview'
 
       - name: Cache NuGet packages
@@ -51,7 +44,6 @@ jobs:
 
       - name: Configure Telerik private feed
         shell: bash
-        if: env.HAS_TELERIK == 'true'
         env:
           TELERIK_NUGET_USERNAME: ${{ secrets.TELERIK_NUGET_USERNAME }}
           TELERIK_NUGET_TOKEN: ${{ secrets.TELERIK_NUGET_TOKEN }}

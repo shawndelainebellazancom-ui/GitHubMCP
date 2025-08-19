@@ -1,6 +1,5 @@
 @page "/contact"
 @using System.ComponentModel.DataAnnotations
-@using Telerik.Blazor
 @using Microsoft.AspNetCore.Components.Forms
 @inject NavigationManager Nav
 @inject ChopChop.Services.UIService UI
@@ -20,11 +19,23 @@
       <EditForm Model="model" OnValidSubmit="SendAsync">
         <DataAnnotationsValidator />
         <ValidationSummary />
-        <TelerikFloatingLabel Text="Name"><TelerikTextBox @bind-Value="model.Name" Width="100%" /></TelerikFloatingLabel>
-        <TelerikFloatingLabel Text="Email"><TelerikTextBox @bind-Value="model.Email" Type="TextBoxType.Email" Width="100%" /></TelerikFloatingLabel>
-        <TelerikFloatingLabel Text="Message"><TelerikTextArea @bind-Value="model.Message" Rows="4" Width="100%" /></TelerikFloatingLabel>
+        <div class="field">
+          <label>Name</label>
+          <TelerikTextBox @bind-Value="model.Name" />
+          <ValidationMessage For="@(() => model.Name)" />
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <TelerikTextBox @bind-Value="model.Email" InputMode="email" AutoComplete="email" />
+          <ValidationMessage For="@(() => model.Email)" />
+        </div>
+        <div class="field">
+          <label>Message</label>
+          <TelerikTextArea @bind-Value="model.Message" Rows="4" />
+          <ValidationMessage For="@(() => model.Message)" />
+        </div>
         <div style="margin-top:12px">
-          <TelerikButton ThemeColor="Primary" ButtonType="ButtonType.Submit">Send Message</TelerikButton>
+          <TelerikButton ButtonType="@ButtonType.Submit" ThemeColor="@Telerik.Blazor.ThemeConstants.Button.ThemeColor.Primary">Send Message</TelerikButton>
         </div>
       </EditForm>
       <p class="cc-hint">We reply within one business day.</p>

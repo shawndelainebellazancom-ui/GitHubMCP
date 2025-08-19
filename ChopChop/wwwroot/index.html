@@ -45,8 +45,34 @@
   <script src="js/install.js"></script>
   <script src="js/telemetry.js"></script>
   <script src="js/theme.js"></script>
-  <script src="_framework/blazor.webassembly.js"></script>
-  <script>Blazor.start();</script>
-  <script>navigator.serviceWorker?.register('service-worker.js');</script>
+  <script src="_framework/blazor.webassembly.js" autostart="false"></script>
+  <script>
+    // Gentle SW handling: unregister in dev, register in prod
+    (function(){
+      if (!('serviceWorker' in navigator)) return;
+      const dev = /^(localhost|127\.0\.0\.1)$/i.test(location.hostname);
+      if (dev) {
+        navigator.serviceWorker.getRegistrations?.().then(rs => rs.forEach(r => r.unregister()));
+      } else {
+        navigator.serviceWorker.register('service-worker.js');
+      }
+    })();
+    // Show a fallback message if boot takes too long
+    let bootTimer = setTimeout(() => {
+      const app = document.getElementById('app');
+      if (app) app.textContent = 'Still starting… If this persists, refresh and check DevTools console.';
+    }, 8000);
+    Blazor.start({
+      loadBootResource: (type, name, defaultUri) => defaultUri,
+      // Workaround: avoid importing broken library initializers (numeric keys)
+      initializers: { beforeStart: [], afterStarted: [] }
+    })
+      .then(() => clearTimeout(bootTimer))
+      .catch(err => {
+        const app = document.getElementById('app');
+        if (app) app.textContent = 'Failed to start. See console for details.';
+        console.error(err);
+      });
+  </script>
 </body>
 </html>

@@ -1,0 +1,18 @@
+- name: Overview
+  href: README.md
+- name: 1. Product Design & Requirements
+  href: product-design.md
+- name: 2. System Architecture & Database Design
+  href: system-architecture.md
+- name: 3. Backend Development
+  href: backend-development.md
+- name: 4. Frontend Blazor Development
+  href: frontend-blazor.md
+- name: 5. Database Integration & EF Core
+  href: ef-database.md
+- name: 6. Telerik Component Integration
+  href: telerik-integration.md
+- name: 7. Testing Strategy
+  href: testing-strategy.md
+- name: 8. Deployment & DevOps
+  href: deployment-devops.md

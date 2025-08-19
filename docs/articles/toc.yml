@@ -1,0 +1,6 @@
+- name: AI Architecture
+  href: ai-architecture.md
+- name: MSBuild AI Task
+  href: msbuild-ai-task.md
+- name: Prompts
+  href: prompts/
