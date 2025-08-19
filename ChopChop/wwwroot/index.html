@@ -38,7 +38,7 @@
   <!-- Telerik UI for Blazor assets -->
   <link id="kendoTheme" rel="stylesheet" href="_content/Telerik.UI.for.Blazor/css/kendo-theme-fluent/all.css">
   <link href="css/brand.css" rel="stylesheet" />
-  <script src="_content/Telerik.UI.for.Blazor/js/telerik-blazor.js"></script>
+  <script src="_content/Telerik.UI.for.Blazor/js/telerik-blazor.js?v=2025-08-19-01"></script>
 </head>
 <body>
   <div id="app">Loading…</div>
@@ -62,8 +62,10 @@
       const app = document.getElementById('app');
       if (app) app.textContent = 'Still starting… If this persists, refresh and check DevTools console.';
     }, 8000);
+    // Cache-bust framework and DLL resources to avoid stale client caches
+    const ASSET_STAMP = 'v2025-08-19-01';
     Blazor.start({
-      loadBootResource: (type, name, defaultUri) => defaultUri,
+      loadBootResource: (type, name, defaultUri) => `${defaultUri}?${ASSET_STAMP}`,
       // Workaround: avoid importing broken library initializers (numeric keys)
       initializers: { beforeStart: [], afterStarted: [] }
     })

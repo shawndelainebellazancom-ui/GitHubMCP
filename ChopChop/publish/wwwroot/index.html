@@ -6,6 +6,7 @@
   <title>ChopChop – Landscaping & Lawn Care</title>
   <base href="/" />
   <meta name="theme-color" content="#1E6F4F" />
+  <meta name="theme-color" content="#0F2A1E" media="(prefers-color-scheme: dark)" />
   <meta name="description" content="ChopChop by Tooensure LLC – landscaping, lawn care, and gardening services. Book now." />
   <!-- PWA manifest (primary) -->
   <link rel="manifest" href="manifest.webmanifest" />
@@ -45,7 +46,35 @@
   <script src="js/telemetry.js"></script>
   <script src="js/theme.js"></script>
   <script src="_framework/blazor.webassembly.js" autostart="false"></script>
-  <script>Blazor.start({ loadBootResource: (type, name, defaultUri, integrity) => defaultUri });</script>
-  <script>navigator.serviceWorker?.register('service-worker.js');</script>
+  <script>
+    // Gentle SW handling: unregister in dev, register in prod
+    (function(){
+      if (!('serviceWorker' in navigator)) return;
+      const dev = /^(localhost|127\.0\.0\.1)$/i.test(location.hostname);
+      if (dev) {
+        navigator.serviceWorker.getRegistrations?.().then(rs => rs.forEach(r => r.unregister()));
+      } else {
+        navigator.serviceWorker.register('service-worker.js');
+      }
+    })();
+    // Show a fallback message if boot takes too long
+    let bootTimer = setTimeout(() => {
+      const app = document.getElementById('app');
+      if (app) app.textContent = 'Still starting… If this persists, refresh and check DevTools console.';
+    }, 8000);
+    // Cache-bust framework and DLL resources to avoid stale client caches
+    const ASSET_STAMP = 'v2025-08-19-01';
+    Blazor.start({
+      loadBootResource: (type, name, defaultUri) => `${defaultUri}?${ASSET_STAMP}`,
+      // Workaround: avoid importing broken library initializers (numeric keys)
+      initializers: { beforeStart: [], afterStarted: [] }
+    })
+      .then(() => clearTimeout(bootTimer))
+      .catch(err => {
+        const app = document.getElementById('app');
+        if (app) app.textContent = 'Failed to start. See console for details.';
+        console.error(err);
+      });
+  </script>
 </body>
 </html>

@@ -1,0 +1,1 @@
+{"file":"ChopChop","frames":[{"name":"Home","size":[1440,1024],"layers":[{"type":"header","height":64},{"type":"hero","height":360},{"type":"grid","columns":3,"rows":2},{"type":"footer","height":160}]}],"palette":{"primary":"#4CAF50","earth":"#8B4513","sand":"#F5F5DC","accent":"#2196F3"},"typography":{"base":16,"scale":1.125,"fonts":["Roboto","Open Sans"]}}

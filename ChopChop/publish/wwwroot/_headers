@@ -1,0 +1,12 @@
+# Prevent caching of framework and DLLs to avoid stale client errors
+/_framework/*
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+  X-Content-Type-Options: nosniff
+
+# Also prevent caching of the service worker files
+/service-worker.*
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+
+# App static assets can be cached safely
+/*
+  Cache-Control: public, max-age=31536000

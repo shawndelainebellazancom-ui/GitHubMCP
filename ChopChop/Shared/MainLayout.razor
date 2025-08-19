@@ -13,7 +13,7 @@
                      HorizontalPosition="@NotificationHorizontalPosition.Right"
                      VerticalPosition="@NotificationVerticalPosition.Top"
                      AnimationType="@AnimationType.SlideIn"
-                     Class="cc-toast-host" />
+                     Class="@toastClass" />
 
 <header class="cc-header" role="banner">
   <nav class="cc-nav" aria-label="Primary">
@@ -106,6 +106,7 @@
   private bool isBusy;
   private bool canInstall;
   private TelerikNotification? NotificationRef;
+  private string toastClass = "cc-toast-host";
   private bool menuOpen;
   private bool mobileDrawerOpen;
   private EventHandler<LocationChangedEventArgs>? _navHandler;
@@ -135,8 +136,8 @@
   {
     if (NotificationRef is not null)
     {
-      // Apply success variant styling class before showing
-      NotificationRef.Class = "cc-toast-host cc-toast-success";
+  // Apply success variant styling class before showing
+  toastClass = "cc-toast-host cc-toast-success";
       NotificationRef.Show(new NotificationModel { Text = text, ThemeColor = Telerik.Blazor.ThemeConstants.Notification.ThemeColor.Success });
     }
     StateHasChanged();
@@ -164,8 +165,8 @@
   {
     if (NotificationRef is not null)
     {
-      // Apply error variant styling class before showing
-      NotificationRef.Class = "cc-toast-host cc-toast-error";
+  // Apply error variant styling class before showing
+  toastClass = "cc-toast-host cc-toast-error";
       NotificationRef.Show(new NotificationModel { Text = text, ThemeColor = Telerik.Blazor.ThemeConstants.Notification.ThemeColor.Error });
     }
     StateHasChanged();

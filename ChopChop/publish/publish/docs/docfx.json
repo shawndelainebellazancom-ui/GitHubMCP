@@ -1,0 +1,17 @@
+{
+  "metadata": [
+    {
+      "src": [ { "files": ["**/*.csproj"], "exclude": ["**/bin/**", "**/obj/**"] } ],
+      "dest": "api",
+      "disableGitFeatures": false
+    }
+  ],
+  "build": {
+    "content": [
+      { "files": ["*.md", "*.json", "articles/**.md", "articles/**/toc.yml", "toc.yml", "README.md"] },
+      { "files": ["api/**.yml", "api/**.md"] }
+    ],
+    "resource": [ { "files": ["images/**"] } ],
+    "dest": "_site"
+  }
+}

@@ -27,6 +27,12 @@
         "resolved": "9.0.8",
         "contentHash": "G0M9feBDadrqqPMuQ6Hmb/OmG3EmIA2BrWNXYuIeDeXjOJLXlbEKku/K7yY/nstAvkv+aWaVfxYkSr1llCVt4A=="
       },
+      "Microsoft.DotNet.HotReload.WebAssembly.Browser": {
+        "type": "Direct",
+        "requested": "[10.0.100-preview.7.25380.108, )",
+        "resolved": "10.0.100-preview.7.25380.108",
+        "contentHash": "lBJoLA3vDasaj0pLzWN4Zxo+4tjRlatyE2lcYHLv74TXPR5MZY0zclHR68FoBjPZEDMXts6lT+DsbtpkXkt8XA=="
+      },
       "Microsoft.NET.ILLink.Tasks": {
         "type": "Direct",
         "requested": "[10.0.0-preview.7.25380.108, )",
