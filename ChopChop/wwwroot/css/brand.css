@@ -43,8 +43,10 @@ html, body { color: var(--cc-text); background: var(--cc-surface); }
   display: flex; align-items: center; justify-content: space-between;
   gap: 16px; padding: 12px 20px; max-width: 1200px; margin: 0 auto;
 }
-.cc-brand { font-weight: 800; letter-spacing: .3px; color: var(--cc-text); text-decoration: none; }
+.cc-brand { display:flex; align-items:center; gap:10px; font-weight: 800; letter-spacing: .3px; color: var(--cc-text); text-decoration: none; }
+.cc-brand img { width: 28px; height: 28px; border-radius: 6px; box-shadow: inset 0 0 0 2px rgba(255,255,255,.6); }
 .cc-links { display: flex; gap: 12px; }
+.cc-menu-toggle { display: none; align-items: center; gap: 6px; }
 .cc-link {
   position: relative; padding: 8px 10px; color: var(--cc-text); text-decoration: none; border-radius: var(--cc-radius-sm);
   outline: none;
@@ -58,6 +60,7 @@ html, body { color: var(--cc-text); background: var(--cc-surface); }
 
 .cc-actions { display: flex; gap: 8px; align-items: center; }
 .cc-link .k-svg-icon { margin-right: 6px; vertical-align: middle; }
+.cc-actions .k-svg-icon { margin-right: 6px; vertical-align: middle; }
 .cc-ghost.k-button { background: transparent; border-color: var(--cc-border); }
 .cc-ghost.k-button:hover { border-color: var(--cc-primary); color: var(--cc-primary); }
 
@@ -75,6 +78,33 @@ html, body { color: var(--cc-text); background: var(--cc-surface); }
 @media (prefers-reduced-motion: reduce) { .cc-main { animation: none; } }
 .cc-footer { border-top: 1px solid var(--cc-border); background: var(--cc-surface-subtle); }
 .cc-footer-content { max-width: 1200px; margin: 0 auto; padding: 16px 20px; display:flex; justify-content: space-between; color: var(--cc-text-muted); }
+
+/* Busy overlay */
+.cc-busy-overlay {
+  position: fixed; inset: 0; z-index: 2000;
+  background: color-mix(in oklab, #0F2A1E 15%, transparent);
+  backdrop-filter: blur(2px) saturate(140%);
+  display: flex; align-items: center; justify-content: center; flex-direction: column;
+}
+
+/* Mobile nav */
+@media (max-width: 768px) {
+  .cc-menu-toggle { display: inline-flex; }
+  .cc-links { display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--cc-surface); border-bottom: 1px solid var(--cc-border); padding: 12px 20px; flex-direction: column; gap: 6px; }
+  .cc-links.open { display: none; } /* use Drawer instead on mobile */
+  .cc-nav { position: relative; }
+  .cc-actions { display: none; }
+}
+
+/* Show the Telerik Drawer component only on mobile */
+.cc-mobile-drawer { display: none; }
+@media (max-width: 768px) { .cc-mobile-drawer { display: block; } }
+
+/* Dark theme tweaks */
+[data-theme="dark"] .cc-header { background: rgba(16,20,18,.88); border-bottom-color: rgba(255,255,255,.08); }
+[data-theme="dark"] .cc-footer { background: #101714; border-top-color: rgba(255,255,255,.08); }
+[data-theme="dark"] .cc-ratings { background: #101714; }
+[data-theme="dark"] .cc-busy-overlay { background: color-mix(in oklab, #000 30%, transparent); }
 
 .cc-hero { background: var(--cc-surface-subtle); border-radius: var(--cc-radius-lg); padding: 48px 20px; }
 .cc-hero-content { max-width: 1000px; margin: 0 auto; text-align: left; }

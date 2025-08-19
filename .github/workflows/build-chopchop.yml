@@ -1,0 +1,55 @@
+name: Build ChopChop (Release)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'ChopChop/**'
+      - '.github/workflows/build-chopchop.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    env:
+      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: '1'
+      TELERIK_LICENSE: ${{ secrets.TELERIK_LICENSE }}
+      TELERIK_NUGET_USERNAME: ${{ secrets.TELERIK_NUGET_USERNAME }}
+      TELERIK_NUGET_TOKEN: ${{ secrets.TELERIK_NUGET_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+          dotnet-quality: 'preview'
+
+      - name: Configure Telerik private feed
+        shell: pwsh
+        run: |
+          dotnet nuget remove source TelerikNuGetV3 -v q || $true
+          dotnet nuget add source https://nuget.telerik.com/v3/index.json `
+            --name TelerikNuGetV3 `
+            --username "${env:TELERIK_NUGET_USERNAME}" `
+            --password "${env:TELERIK_NUGET_TOKEN}"
+
+      - name: Restore
+        run: dotnet restore .\ChopChop\ChopChop.csproj
+
+      - name: Build (Release)
+        run: dotnet build .\ChopChop\ChopChop.csproj -c Release -v:m
+
+      - name: Publish artifacts
+        if: success()
+        run: dotnet publish .\ChopChop\ChopChop.csproj -c Release -o .\artifacts\chopchop
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: chopchop-site
+          path: artifacts/chopchop

@@ -2,6 +2,7 @@
 @inject NavigationManager Navigation
 @using Telerik.Blazor
 @using Telerik.Blazor.Components
+@using Telerik.SvgIcons
 
 <PageTitle>Services — ChopChop Landscaping</PageTitle>
 <HeadContent>
@@ -26,9 +27,13 @@
     {
       @foreach (var svc in ServiceList)
       {
-        <div class="cc-card">
-          <div class="cc-card-header"><h3>@svc.Name</h3></div>
-          <div class="cc-card-body">
+        <TelerikCard Class="cc-card">
+          <CardHeader>
+            <h3 style="display:flex;align-items:center;gap:8px;margin:0">
+              <TelerikSvgIcon Icon="@GetServiceIcon(svc.Id)" /> @svc.Name
+            </h3>
+          </CardHeader>
+          <CardBody>
             <p>@svc.Description</p>
             @if (svc.Features?.Length > 0)
             {
@@ -39,11 +44,11 @@
                 }
               </ul>
             }
-          </div>
-          <div class="cc-card-actions">
-            <TelerikButton ThemeColor="primary" OnClick='@(() => Book(svc.Id))'>Get a Quote</TelerikButton>
-          </div>
-        </div>
+          </CardBody>
+          <CardActions>
+            <TelerikButton ThemeColor="@Telerik.Blazor.ThemeConstants.Button.ThemeColor.Primary" Icon="@SvgIcon.Dollar" OnClick='@(() => Book(svc.Id))'>Get a Quote</TelerikButton>
+          </CardActions>
+        </TelerikCard>
       }
     }
   </div>
@@ -68,4 +73,13 @@
   }
 
   void Book(string id) => Navigation.NavigateTo($"/booking?service={id}");
+
+  private ISvgIcon GetServiceIcon(string id) => id switch
+  {
+    "lawn" => SvgIcon.ListUnordered,
+    "cleanups" => SvgIcon.Check,
+    "hedge" => SvgIcon.Star,
+    "mulch" => SvgIcon.Grid,
+    _ => SvgIcon.Home
+  };
 }

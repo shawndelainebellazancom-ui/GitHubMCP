@@ -1,0 +1,59 @@
+name: Deploy ChopChop to Firebase Hosting
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'ChopChop/**'
+      - '.github/workflows/deploy-firebase.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build_deploy:
+    runs-on: windows-latest
+    env:
+      TELERIK_LICENSE: ${{ secrets.TELERIK_LICENSE }}
+      TELERIK_NUGET_USERNAME: ${{ secrets.TELERIK_NUGET_USERNAME }}
+      TELERIK_NUGET_TOKEN: ${{ secrets.TELERIK_NUGET_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+          dotnet-quality: 'preview'
+
+      - name: Configure Telerik private feed
+        shell: pwsh
+        run: |
+          dotnet nuget remove source TelerikNuGetV3 -v q || $true
+          dotnet nuget add source https://nuget.telerik.com/v3/index.json `
+            --name TelerikNuGetV3 `
+            --username "${env:TELERIK_NUGET_USERNAME}" `
+            --password "${env:TELERIK_NUGET_TOKEN}"
+
+      - name: Restore
+        run: dotnet restore .\ChopChop\ChopChop.csproj
+
+      - name: Publish (Release)
+        run: dotnet publish .\ChopChop\ChopChop.csproj -c Release -o .\site
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Deploy to Firebase Hosting
+        working-directory: ./ChopChop
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          FIREBASE_PROJECT: ${{ secrets.FIREBASE_PROJECT }}
+        run: firebase deploy --only hosting --project $env:FIREBASE_PROJECT --non-interactive

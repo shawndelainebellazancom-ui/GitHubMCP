@@ -19,46 +19,61 @@
     <p class="cc-helper">This takes under 2 minutes.</p>
 
     <div class="card cc-card">
-        <EditForm Model="model" OnValidSubmit="OnSubmit">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-            <div class="row md-2">
-                <div style="width:100%">
-                    <label for="service">Service</label>
-                    <TelerikDropDownList Data="ServiceOptions" TextField="Name" ValueField="Id" @bind-Value="model.ServiceId" />
-                    <div class="cc-hint">Not sure? Pick what’s closest—we’ll confirm on the call.</div>
-                    <ValidationMessage For="@(() => model.ServiceId)" />
+        <div class="cc-card-body">
+            <EditForm Model="model" OnValidSubmit="OnSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="row md-2">
+                    <div style="width:100%">
+                        <label for="service">Service</label>
+                        <TelerikDropDownList Data="ServiceOptions" TextField="Name" ValueField="Id" @bind-Value="model.ServiceId" Width="100%" />
+                        <div class="cc-hint">Not sure? Pick what’s closest—we’ll confirm on the call.</div>
+                        <ValidationMessage For="@(() => model.ServiceId)" />
+                    </div>
+                    <div style="width:100%">
+                        <label for="date">Preferred Date</label>
+                        <TelerikDatePicker @bind-Value="model.Date" Width="100%" Min="@DateTime.Today" />
+                        <div class="cc-hint">We’ll email to confirm a time.</div>
+                        <ValidationMessage For="@(() => model.Date)" />
+                    </div>
                 </div>
-                <div style="width:100%">
-                    <label for="date">Preferred Date</label>
-                    <TelerikDatePicker @bind-Value="model.Date" />
-                    <div class="cc-hint">We’ll email to confirm a time.</div>
-                    <ValidationMessage For="@(() => model.Date)" />
+                <div class="row md-2">
+                    <div style="width:100%">
+                        <label for="address">Service address</label>
+            <TelerikTextBox @bind-Value="model.Address" Width="100%">
+                            <TextBoxPrefixTemplate>
+                <TelerikSvgIcon Icon="@SvgIcon.Pin" />
+                            </TextBoxPrefixTemplate>
+                        </TelerikTextBox>
+                        <div class="cc-hint">Used to confirm service area.</div>
+                        <ValidationMessage For="@(() => model.Address)" />
+                    </div>
+                    <div style="width:100%">
+                        <label for="contact">Email</label>
+            <TelerikTextBox @bind-Value="model.Contact" InputMode="email" AutoComplete="email" Width="100%">
+                            <TextBoxPrefixTemplate>
+                <TelerikSvgIcon Icon="@SvgIcon.Envelope" />
+                            </TextBoxPrefixTemplate>
+                        </TelerikTextBox>
+                        <div class="cc-hint">For confirmations and reminders.</div>
+                        <ValidationMessage For="@(() => model.Contact)" />
+                    </div>
                 </div>
-            </div>
-            <div class="row md-2">
-                <div style="width:100%">
-                    <label for="address">Service address</label>
-                    <TelerikTextBox @bind-Value="model.Address" />
-                    <div class="cc-hint">Used to confirm service area.</div>
-                    <ValidationMessage For="@(() => model.Address)" />
+                <div style="margin-top:12px; display:flex; gap:16px; align-items:center;">
+                    <TelerikCheckBox @bind-Value="model.AddMulch" /> <span>Add mulch</span>
+                    <TelerikCheckBox @bind-Value="model.AddFertilizer" /> <span>Add fertilizer</span>
                 </div>
-                <div style="width:100%">
-                    <label for="contact">Email</label>
-                    <TelerikTextBox @bind-Value="model.Contact" InputMode="email" AutoComplete="email" />
-                    <div class="cc-hint">For confirmations and reminders.</div>
-                    <ValidationMessage For="@(() => model.Contact)" />
+                <div class="cc-card-actions">
+                    <TelerikButton ButtonType="@ButtonType.Submit"
+                                   ThemeColor="@Telerik.Blazor.ThemeConstants.Button.ThemeColor.Primary"
+                                   Icon="@SvgIcon.Calendar">Request Booking</TelerikButton>
+                    <TelerikButton ButtonType="@ButtonType.Button"
+                                   ThemeColor="@Telerik.Blazor.ThemeConstants.Button.ThemeColor.Base"
+                                   Icon="@SvgIcon.Dollar"
+                                   OnClick='@(() => Nav.NavigateTo("/pricing"))'>See Pricing</TelerikButton>
                 </div>
-            </div>
-            <div style="margin-top:12px; display:flex; gap:16px; align-items:center;">
-                <TelerikCheckBox @bind-Value="model.AddMulch" /> <span>Add mulch</span>
-                <TelerikCheckBox @bind-Value="model.AddFertilizer" /> <span>Add fertilizer</span>
-            </div>
-            <div style="margin-top:12px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
-                <TelerikButton ButtonType="@ButtonType.Submit">Request Booking</TelerikButton>
-                <TelerikButton ButtonType="@ButtonType.Button" OnClick='@(() => Nav.NavigateTo("/pricing"))'>See Pricing</TelerikButton>
-            </div>
-        </EditForm>
+            </EditForm>
+        </div>
     </div>
 </section>
 

@@ -61,3 +61,11 @@ Secret bootstrap
 - Place non-committed settings in `g:\GitHubMCP\.env`. Keys:
 	- `TELERIK_NUGET_SOURCE` (optional), `TELERIK_NUGET_USERNAME`, `TELERIK_NUGET_TOKEN`
 	- `PUBLIC_*` branding options
+
+CI (GitHub Actions)
+- Add repo Secrets:
+	- `TELERIK_NUGET_USERNAME` = your Telerik account email
+	- `TELERIK_NUGET_TOKEN` = your Telerik API key
+	- `TELERIK_LICENSE` = your Telerik license token (or set `TELERIK_LICENSE_FILE` with a secure file provision)
+- Workflow: `.github/workflows/build-chopchop.yml`
+	- Builds ChopChop with .NET 10 preview on Windows, configures the Telerik feed, and publishes artifacts.

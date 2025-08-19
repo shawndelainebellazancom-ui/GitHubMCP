@@ -1,6 +1,7 @@
 @page "/pricing"
 @using Telerik.Blazor
 @using Telerik.Blazor.Components
+@using Telerik.SvgIcons
 
 <PageTitle>Pricing — ChopChop Landscaping</PageTitle>
 <HeadContent>
@@ -14,56 +15,60 @@
 <section class="cc-section">
   <h1>Clear pricing. No surprises.</h1>
   <div class="cc-grid-3 cc-pricing">
-    <div class="cc-card">
-      <div class="cc-card-header"><h3>Basic</h3></div>
-      <div class="cc-card-body">
+    <TelerikCard Class="cc-card">
+      <CardHeader>
+  <h3 style="display:flex;align-items:center;gap:8px;margin:0"><TelerikSvgIcon Icon="@SvgIcon.Dollar" /> Basic</h3>
+      </CardHeader>
+      <CardBody>
         <div class="cc-price"><span class="cc-amount">$59</span><span class="cc-term">/visit</span></div>
         <ul class="cc-features">
           <li>Occasional tidy-ups</li>
           <li>Edge & blow-off</li>
         </ul>
-      </div>
-    <div class="cc-card-actions">
-  <TelerikButton ThemeColor="primary" OnClick='() => Go("Basic")'>Choose Plan</TelerikButton>
-    </div>
-    </div>
+      </CardBody>
+      <CardActions>
+        <TelerikButton ThemeColor="@Telerik.Blazor.ThemeConstants.Button.ThemeColor.Primary" Icon="@SvgIcon.Check" OnClick='() => Go("Basic")'>Choose Plan</TelerikButton>
+      </CardActions>
+    </TelerikCard>
 
     <section role="group" aria-labelledby="standard-heading">
-    <div class="cc-card cc-popular">
-      <div class="cc-card-header">
-        <div class="cc-badge-row">
-          <h3 id="standard-heading">Standard</h3>
-          @PopularBadge
-        </div>
-      </div>
-      <div class="cc-card-body">
-        <div class="cc-price"><span class="cc-amount">$99</span><span class="cc-term">/mo</span></div>
-        <ul class="cc-features">
-          <li>Weekly care that always looks good</li>
-          <li>Edges every visit</li>
-          <li>Priority scheduling</li>
-        </ul>
-      </div>
-    <div class="cc-card-actions">
-  <TelerikButton ThemeColor="primary" OnClick='() => Go("Standard")'>Choose Plan</TelerikButton>
-    </div>
-  </div>
-  </section>
+      <TelerikCard Class="cc-card cc-popular">
+        <CardHeader>
+          <div class="cc-badge-row">
+            <h3 id="standard-heading" style="margin:0;display:flex;align-items:center;gap:8px"><TelerikSvgIcon Icon="@SvgIcon.Star" /> Standard</h3>
+            @PopularBadge
+          </div>
+        </CardHeader>
+        <CardBody>
+          <div class="cc-price"><span class="cc-amount">$99</span><span class="cc-term">/mo</span></div>
+          <ul class="cc-features">
+            <li>Weekly care that always looks good</li>
+            <li>Edges every visit</li>
+            <li>Priority scheduling</li>
+          </ul>
+        </CardBody>
+        <CardActions>
+          <TelerikButton ThemeColor="@Telerik.Blazor.ThemeConstants.Button.ThemeColor.Primary" Icon="@SvgIcon.Star" OnClick='() => Go("Standard")'>Choose Plan</TelerikButton>
+        </CardActions>
+      </TelerikCard>
+    </section>
 
-    <div class="cc-card">
-      <div class="cc-card-header"><h3>Premium</h3></div>
-      <div class="cc-card-body">
+    <TelerikCard Class="cc-card">
+      <CardHeader>
+  <h3 style="display:flex;align-items:center;gap:8px;margin:0"><TelerikSvgIcon Icon="@SvgIcon.Star" /> Premium</h3>
+      </CardHeader>
+      <CardBody>
         <div class="cc-price"><span class="cc-amount">$179</span><span class="cc-term">/mo</span></div>
         <ul class="cc-features">
           <li>Full-season manicured care</li>
           <li>Proactive bed refresh</li>
           <li>Dedicated crew</li>
         </ul>
-      </div>
-    <div class="cc-card-actions">
-  <TelerikButton ThemeColor="primary" OnClick='() => Go("Premium")'>Choose Plan</TelerikButton>
-    </div>
-    </div>
+      </CardBody>
+      <CardActions>
+        <TelerikButton ThemeColor="@Telerik.Blazor.ThemeConstants.Button.ThemeColor.Primary" Icon="@SvgIcon.Check" OnClick='() => Go("Premium")'>Choose Plan</TelerikButton>
+      </CardActions>
+    </TelerikCard>
   </div>
 
   <p class="cc-disclaimer">Prices vary by yard size and complexity. Final quote confirmed after site check.</p>

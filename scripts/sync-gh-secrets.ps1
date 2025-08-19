@@ -1,6 +1,7 @@
 param(
   [string]$EnvPath = (Join-Path -Path $PSScriptRoot -ChildPath (Join-Path -Path '..' -ChildPath '.env')),
-  [string]$Repo = ''
+  [string]$Repo = '',
+  [switch]$IncludeLicense
 )
 $ErrorActionPreference = 'Stop'
 if (-not $Repo) {
@@ -45,5 +46,24 @@ Write-Host "Pushing GitHub Actions secrets to $Repo" -ForegroundColor Cyan
 & gh secret set TELERIK_NUGET_TOKEN --repo $Repo --body $token | Out-Null
 if ($envMap.ContainsKey('TELERIK_NUGET_SOURCE') -and -not [string]::IsNullOrWhiteSpace($envMap['TELERIK_NUGET_SOURCE'])) {
   & gh secret set TELERIK_NUGET_SOURCE --repo $Repo --body $envMap['TELERIK_NUGET_SOURCE'] | Out-Null
+}
+
+if ($IncludeLicense) {
+  $license = $envMap['TELERIK_LICENSE']
+  if ([string]::IsNullOrWhiteSpace($license)) {
+    # Try reading from known license file next to repo root
+    try {
+      $licPath = Join-Path -Path $PSScriptRoot -ChildPath (Join-Path -Path '..' -ChildPath 'telerik-license.txt')
+      if (Test-Path -LiteralPath $licPath) {
+        $license = Get-Content -LiteralPath $licPath -Raw -Encoding UTF8
+      }
+    } catch {}
+  }
+  if ($license) {
+    Write-Host "Adding TELERIK_LICENSE secret" -ForegroundColor Cyan
+    & gh secret set TELERIK_LICENSE --repo $Repo --body $license | Out-Null
+  } else {
+    Write-Warning 'TELERIK_LICENSE not found in .env and no telerik-license.txt present. Skipping TELERIK_LICENSE.'
+  }
 }
 Write-Host "Done." -ForegroundColor Green

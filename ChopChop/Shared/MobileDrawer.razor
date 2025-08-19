@@ -1,0 +1,46 @@
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
+@using Telerik.SvgIcons
+@inject NavigationManager Nav
+
+<div id="mobile-drawer">
+<TelerikDrawer Data="@Items"
+               TItem="NavItem"
+               TextField="Text"
+               IconField="Icon"
+               UrlField="Url"
+               @bind-Expanded="Open"
+               Mode="@DrawerMode.Overlay"
+               MiniMode="true"
+               Class="cc-mobile-drawer"
+               SelectedItemChanged="@OnSelected">
+  <DrawerContent>
+    @* Overlay drawer; content is provided by the page outside. *@
+  </DrawerContent>
+</TelerikDrawer>
+</div>
+
+@code {
+  [Parameter] public bool Open { get; set; }
+  [Parameter] public EventCallback<bool> OpenChanged { get; set; }
+
+  private void OnSelected(NavItem item)
+  {
+    if (!string.IsNullOrWhiteSpace(item.Url))
+    {
+      Nav.NavigateTo(item.Url);
+    }
+    _ = OpenChanged.InvokeAsync(false);
+  }
+
+  private readonly IEnumerable<NavItem> Items = new List<NavItem>
+  {
+    new("Home", SvgIcon.Home, "/"),
+    new("Services", SvgIcon.ListUnordered, "/services"),
+    new("Pricing", SvgIcon.Dollar, "/pricing"),
+    new("Booking", SvgIcon.Calendar, "/booking"),
+    new("Contact", SvgIcon.Envelope, "/contact")
+  };
+
+  private sealed record NavItem(string Text, ISvgIcon Icon, string Url);
+}

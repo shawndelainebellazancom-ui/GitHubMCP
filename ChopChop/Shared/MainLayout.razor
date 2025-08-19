@@ -1,76 +1,144 @@
 @using Microsoft.AspNetCore.Components.Routing
+@using Telerik.Blazor.Components
+@using Telerik.SvgIcons
+@using Telerik.Blazor
+@using Microsoft.AspNetCore.Components
+@using ChopChop.Shared
 @inherits LayoutComponentBase
 @implements IDisposable
 
 <a href="#main" class="sr-only" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden">Skip to content</a>
 
+<TelerikNotification @ref="NotificationRef"
+                     HorizontalPosition="@NotificationHorizontalPosition.Right"
+                     VerticalPosition="@NotificationVerticalPosition.Top"
+                     AnimationType="@AnimationType.SlideIn"
+                     Class="cc-toast-host" />
+
 <header class="cc-header" role="banner">
   <nav class="cc-nav" aria-label="Primary">
-    <a href="/" class="cc-brand" aria-label="ChopChop Landscaping Services">ChopChop</a>
+    <a href="/" class="cc-brand" aria-label="ChopChop Landscaping Services">
+      <img src="/android-icon-48x48.png" alt="" aria-hidden="true" />
+      <span>ChopChop</span>
+    </a>
 
-    <div class="cc-links" role="menubar">
-      <NavLink href="/" Match="NavLinkMatch.All" class="cc-link" ActiveClass="active" role="menuitem">Home</NavLink>
-      <NavLink href="/services" class="cc-link" ActiveClass="active" role="menuitem">Services</NavLink>
-      <NavLink href="/pricing" class="cc-link" ActiveClass="active" role="menuitem">Pricing</NavLink>
-      <NavLink href="/booking" class="cc-link" ActiveClass="active" role="menuitem">Booking</NavLink>
-      <NavLink href="/contact" class="cc-link" ActiveClass="active" role="menuitem">Contact</NavLink>
+  <button class="cc-menu-toggle" type="button" aria-label="Toggle menu" aria-haspopup="menu" aria-controls="mobile-drawer" aria-expanded="@mobileDrawerOpen" @onclick="OpenDrawer">
+      <TelerikSvgIcon Icon="@SvgIcon.Menu" />
+    </button>
+
+    <div class="cc-links @(menuOpen ? "open" : null)" role="menubar">
+      <NavLink href="/" Match="NavLinkMatch.All" class="cc-link" ActiveClass="active" role="menuitem">
+        <TelerikSvgIcon Icon="@SvgIcon.Home" /> Home
+      </NavLink>
+      <NavLink href="/services" class="cc-link" ActiveClass="active" role="menuitem">
+        <TelerikSvgIcon Icon="@SvgIcon.ListUnordered" /> Services
+      </NavLink>
+      <NavLink href="/pricing" class="cc-link" ActiveClass="active" role="menuitem">
+        <TelerikSvgIcon Icon="@SvgIcon.Dollar" /> Pricing
+      </NavLink>
+      <NavLink href="/booking" class="cc-link" ActiveClass="active" role="menuitem">
+        <TelerikSvgIcon Icon="@SvgIcon.Calendar" /> Booking
+      </NavLink>
+      <NavLink href="/contact" class="cc-link" ActiveClass="active" role="menuitem">
+        <TelerikSvgIcon Icon="@SvgIcon.Envelope" /> Contact
+      </NavLink>
     </div>
 
     <div class="cc-actions">
-      <TelerikButton ThemeColor="base" OnClick='@(() => NavigationManager.NavigateTo("/pricing"))'>See Pricing</TelerikButton>
-      <TelerikButton ThemeColor="primary" OnClick='@(() => NavigationManager.NavigateTo("/booking"))'>Book Now</TelerikButton>
-      <button id="cc-install" class="cc-install" type="button" aria-label="Install app" @onclick="InstallPwa">Install</button>
-      <button class="cc-install" type="button" aria-label="Toggle dark mode" @onclick="ToggleTheme">Theme</button>
+      <TelerikButton ThemeColor="base" Icon="@SvgIcon.Dollar" OnClick='@(() => NavigationManager.NavigateTo("/pricing"))'>See Pricing</TelerikButton>
+      <TelerikButton ThemeColor="primary" Icon="@SvgIcon.Calendar" OnClick='@(() => NavigationManager.NavigateTo("/booking"))'>Book Now</TelerikButton>
+      @if (canInstall)
+      {
+        <button id="cc-install" class="cc-install" type="button" aria-label="Install app" title="Install app" @onclick="InstallPwa">
+          <TelerikSvgIcon Icon="@SvgIcon.Download" /> Install
+        </button>
+      }
+      <button class="cc-install" type="button" aria-label="Toggle theme" title="Toggle theme" @onclick="ToggleTheme">
+        <TelerikSvgIcon Icon="@SvgIcon.Gear" /> Theme
+      </button>
     </div>
   </nav>
-  </header>
+</header>
 
-  <main id="main" class="cc-main" role="main">
-    <ErrorBoundary>
-      <ChildContent>
-        @Body
-      </ChildContent>
-      <ErrorContent Context="ex">
-        <div class="cc-card" style="padding:20px" role="alert" aria-live="assertive">
-          <div style="display:flex;align-items:center;gap:8px">
-            <span aria-hidden="true">⚠️</span>
-            <h2>Something went wrong</h2>
-          </div>
-          <p class="cc-helper">@ex.Message</p>
-           <TelerikButton OnClick='@(() => NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad:true))'>Try again</TelerikButton>
+<main id="main" class="cc-main" role="main">
+  <ErrorBoundary>
+    <ChildContent>
+      @Body
+    </ChildContent>
+    <ErrorContent Context="ex">
+      <div class="cc-card" style="padding:20px" role="alert" aria-live="assertive">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span aria-hidden="true">⚠️</span>
+          <h2>Something went wrong</h2>
         </div>
-      </ErrorContent>
-    </ErrorBoundary>
-  </main>
+        <p class="cc-helper">@ex.Message</p>
+        <TelerikButton OnClick='@(() => NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad:true))'>Try again</TelerikButton>
+      </div>
+    </ErrorContent>
+  </ErrorBoundary>
+</main>
 
-  <footer class="cc-footer" role="contentinfo">
-    <div class="cc-footer-content">
-      <span>&copy; @DateTime.Now.Year ChopChop Landscaping Services</span>
-      <span class="cc-subtle">Locally owned • Fully insured</span>
-      <button class="cc-install" @onclick="InstallPwa">Install App</button>
-    </div>
-  </footer>
+<footer class="cc-footer" role="contentinfo">
+  <div class="cc-footer-content">
+    <span>&copy; @DateTime.Now.Year ChopChop Landscaping Services</span>
+    <span class="cc-subtle">Locally owned • Fully insured</span>
+    @if (canInstall)
+    {
+      <button class="cc-install" @onclick="InstallPwa"><TelerikSvgIcon Icon="@SvgIcon.Download" /> Install App</button>
+    }
+  </div>
+</footer>
 
-  @if (isBusy)
-  {
-    <div class="cc-busy-overlay">Loading…</div>
-  }
+@if (isBusy)
+{
+  <div class="cc-busy-overlay" role="status" aria-live="polite">
+    <TelerikLoader Size="LoaderSize.Large" Type="LoaderType.InfiniteSpinner" />
+    <div class="cc-helper" style="margin-top:8px">Loading…</div>
+  </div>
+}
+
+<MobileDrawer @bind-Open="mobileDrawerOpen" />
 
 @code {
   [Inject] IJSRuntime JS { get; set; } = default!;
   [Inject] NavigationManager NavigationManager { get; set; } = default!;
   [Inject] ChopChop.Services.UIService UI { get; set; } = default!;
   private bool isBusy;
+  private bool canInstall;
+  private TelerikNotification? NotificationRef;
+  private bool menuOpen;
+  private bool mobileDrawerOpen;
+  private EventHandler<LocationChangedEventArgs>? _navHandler;
 
   protected override void OnInitialized()
   {
     UI.ToastRequested += OnToast;
-  UI.ErrorRequested += OnError;
+    UI.ErrorRequested += OnError;
     UI.BusyChanged += OnBusy;
+    _navHandler = (_, __) => { 
+      if (menuOpen) { menuOpen = false; }
+      if (mobileDrawerOpen) { mobileDrawerOpen = false; }
+      StateHasChanged();
+    };
+    NavigationManager.LocationChanged += _navHandler;
+  }
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (firstRender)
+    {
+      try { canInstall = await JS.InvokeAsync<bool>("ChopChopInstall.available"); StateHasChanged(); } catch { }
+    }
   }
 
   private void OnToast(string text)
   {
+    if (NotificationRef is not null)
+    {
+      // Apply success variant styling class before showing
+      NotificationRef.Class = "cc-toast-host cc-toast-success";
+      NotificationRef.Show(new NotificationModel { Text = text, ThemeColor = Telerik.Blazor.ThemeConstants.Notification.ThemeColor.Success });
+    }
     StateHasChanged();
   }
 
@@ -85,13 +153,26 @@
     UI.ToastRequested -= OnToast;
     UI.ErrorRequested -= OnError;
     UI.BusyChanged -= OnBusy;
+    if (_navHandler is not null)
+    {
+      NavigationManager.LocationChanged -= _navHandler;
+      _navHandler = null;
+    }
   }
 
   private void OnError(string text)
   {
+    if (NotificationRef is not null)
+    {
+      // Apply error variant styling class before showing
+      NotificationRef.Class = "cc-toast-host cc-toast-error";
+      NotificationRef.Show(new NotificationModel { Text = text, ThemeColor = Telerik.Blazor.ThemeConstants.Notification.ThemeColor.Error });
+    }
     StateHasChanged();
   }
 
   private async Task InstallPwa() => await JS.InvokeVoidAsync("ChopChopInstall.prompt");
   private async Task ToggleTheme() => await JS.InvokeVoidAsync("ChopTheme.toggle");
+  private void ToggleMenu() => menuOpen = !menuOpen;
+  private void OpenDrawer() => mobileDrawerOpen = true;
 }

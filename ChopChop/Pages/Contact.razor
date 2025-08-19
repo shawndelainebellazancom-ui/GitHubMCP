@@ -1,6 +1,7 @@
 @page "/contact"
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Components.Forms
+@using Telerik.SvgIcons
 @inject NavigationManager Nav
 @inject ChopChop.Services.UIService UI
 
@@ -16,34 +17,52 @@
   <h1>We’re here to help</h1>
   <div class="cc-grid-2">
     <div class="card cc-card">
-      <EditForm Model="model" OnValidSubmit="SendAsync">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
-        <div class="field">
-          <label>Name</label>
-          <TelerikTextBox @bind-Value="model.Name" />
-          <ValidationMessage For="@(() => model.Name)" />
-        </div>
-        <div class="field">
-          <label>Email</label>
-          <TelerikTextBox @bind-Value="model.Email" InputMode="email" AutoComplete="email" />
-          <ValidationMessage For="@(() => model.Email)" />
-        </div>
-        <div class="field">
-          <label>Message</label>
-          <TelerikTextArea @bind-Value="model.Message" Rows="4" />
-          <ValidationMessage For="@(() => model.Message)" />
-        </div>
-        <div style="margin-top:12px">
-          <TelerikButton ButtonType="@ButtonType.Submit" ThemeColor="@Telerik.Blazor.ThemeConstants.Button.ThemeColor.Primary">Send Message</TelerikButton>
-        </div>
-      </EditForm>
+      <div class="cc-card-body">
+        <EditForm Model="model" OnValidSubmit="SendAsync">
+          <DataAnnotationsValidator />
+          <ValidationSummary />
+          <div class="field">
+            <label>Name</label>
+            <TelerikTextBox @bind-Value="model.Name" AutoComplete="name" Width="100%">
+              <TextBoxPrefixTemplate>
+                <TelerikSvgIcon Icon="@SvgIcon.User" />
+              </TextBoxPrefixTemplate>
+            </TelerikTextBox>
+            <ValidationMessage For="@(() => model.Name)" />
+          </div>
+          <div class="field">
+            <label>Email</label>
+      <TelerikTextBox @bind-Value="model.Email" InputMode="email" AutoComplete="email" Width="100%">
+              <TextBoxPrefixTemplate>
+        <TelerikSvgIcon Icon="@SvgIcon.Envelope" />
+              </TextBoxPrefixTemplate>
+            </TelerikTextBox>
+            <ValidationMessage For="@(() => model.Email)" />
+          </div>
+          <div class="field">
+            <label>Message</label>
+            <TelerikTextArea @bind-Value="model.Message" Rows="4" Width="100%">
+              <TextAreaPrefixTemplate>
+                <TelerikSvgIcon Icon="@SvgIcon.Comment" />
+              </TextAreaPrefixTemplate>
+            </TelerikTextArea>
+            <ValidationMessage For="@(() => model.Message)" />
+          </div>
+          <div class="cc-card-actions">
+            <TelerikButton ButtonType="@ButtonType.Submit"
+                           ThemeColor="@Telerik.Blazor.ThemeConstants.Button.ThemeColor.Primary"
+                           Icon="@SvgIcon.Envelope">Send Message</TelerikButton>
+          </div>
+        </EditForm>
+      </div>
       <p class="cc-hint">We reply within one business day.</p>
     </div>
     <div class="cc-contact-alt card cc-card">
-      <p><strong>Call:</strong> (555) 014-1234 <span class="cc-subtle">Weekdays 8–6</span></p>
-      <p><strong>Email:</strong> hello@chopchop.land</p>
-      <p><strong>Address:</strong> 123 Maple St, Springfield</p>
+      <div class="cc-card-body">
+        <p><strong>Call:</strong> (555) 014-1234 <span class="cc-subtle">Weekdays 8–6</span></p>
+        <p><strong>Email:</strong> hello@chopchop.land</p>
+        <p><strong>Address:</strong> 123 Maple St, Springfield</p>
+      </div>
     </div>
   </div>
 </section>
